@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "846088889457",
+    "project_id": "aplikasi-kepegawaian-5bff4",
+    "storage_bucket": "aplikasi-kepegawaian-5bff4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:846088889457:android:e128c8f3e9a4c41b1e27d0",
+        "android_client_info": {
+          "package_name": "com.example.aplikasi_kepegawaian"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "846088889457-ui0cgpaosia2h4fnfsrl7vqrpfenthk0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAm75NIFqWx5gczMvB_1opTZr-3lvnXmQQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "846088889457-ui0cgpaosia2h4fnfsrl7vqrpfenthk0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
