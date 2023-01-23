@@ -1,8 +1,12 @@
+import 'package:aplikasi_kepegawaian/pages/spt/create_spt_page.dart';
+import 'package:aplikasi_kepegawaian/pages/spt/edit_spt_page.dart';
+import 'package:aplikasi_kepegawaian/pages/spt/report_spt.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 
 class SptPage extends StatefulWidget {
@@ -13,32 +17,6 @@ class SptPage extends StatefulWidget {
 }
 
 class _SptPageState extends State<SptPage> {
-  final CollectionReference _collectionRef =
-      FirebaseFirestore.instance.collection('spt');
-
-  List dataSpt = [];
-
-  Future<void> getData() async {
-    // Get docs from collection reference
-    QuerySnapshot querySnapshot = await _collectionRef.get();
-
-    // Get data from docs and convert map to List
-    dataSpt = querySnapshot.docs.map((doc) => doc.data()).toList();
-
-    // users = await FirebaseFirestore.instance
-    //     .collection('users')
-    //     .doc(dataSpt[0]['id_users'])
-    //     .get();
-    // print(geta.get('nama'));
-
-    // var getNama = await FirebaseFirestore.instance
-    //     .collection('users')
-    //     .where(FieldPath.documentId, whereIn: dataSpt[0]['id_users'])
-    //     .get();
-    // print(getNama);
-    print(dataSpt[0]['id_users']);
-  }
-
   @override
   void initState() {
     super.initState();
@@ -48,65 +26,207 @@ class _SptPageState extends State<SptPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.only(
-          top: 20,
-        ),
-        child: Column(
-          children: [
-            StreamBuilder(
-                stream:
-                    FirebaseFirestore.instance.collection('spt').snapshots(),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else {
-                    return SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 30, left: 1),
-                        child: DataTable(
-                            border: TableBorder.all(),
-                            columns: const [
-                              DataColumn(label: Text('No')),
-                              DataColumn(label: Text('No Surat')),
-                              DataColumn(label: Text('Nama')),
-                              DataColumn(label: Text('Maksud Tujuan')),
-                              DataColumn(label: Text('Tempat Tujuan')),
-                              DataColumn(label: Text('Tanggal')),
-                            ],
-                            rows: List<DataRow>.generate(
-                                snapshot.data!.docs.length, (index) {
-                              int no = index + 1;
-                              return DataRow(cells: [
-                                DataCell(Text(no.toString())),
-                                DataCell(
-                                    Text(snapshot.data!.docs[index]['no_spt'])),
-                                DataCell(
-                                    Text(snapshot.data!.docs[index]['nama'])),
-                                DataCell(Text(snapshot.data!.docs[index]
-                                    ['maksud_tujuan'])),
-                                DataCell(Text(snapshot.data!.docs[index]
-                                    ['tempat_tujuan'])),
-                                DataCell(Text(formatDate(
-                                    snapshot.data!.docs[index]['tanggal']))),
-                              ]);
-                            })),
-                      ),
-                    );
-                  }
-                }),
-          ],
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.only(
+            top: 20,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Surat Perintah Tugas",
+                style: TextStyle(fontSize: 26, fontWeight: FontWeight.w500),
+              ),
+              SizedBox(
+                height: 30,
+              ),
+              StreamBuilder(
+                  stream: FirebaseFirestore.instance
+                      .collection('spt')
+                      .orderBy('sendTime')
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else {
+                      return SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 30, left: 1),
+                          child: DataTable(
+                              border: TableBorder.all(),
+                              columns: const [
+                                DataColumn(label: Text('No')),
+                                DataColumn(label: Text('No Surat')),
+                                DataColumn(label: Text('Nama')),
+                                DataColumn(label: Text('Maksud Tujuan')),
+                                DataColumn(label: Text('Tempat Tujuan')),
+                                DataColumn(label: Text('Tanggal')),
+                                DataColumn(label: Text('Action')),
+                              ],
+                              rows: List<DataRow>.generate(
+                                  snapshot.data!.docs.length, (index) {
+                                int no = index + 1;
+                                return DataRow(cells: [
+                                  DataCell(Text(no.toString())),
+                                  DataCell(Text(
+                                      snapshot.data!.docs[index]['no_spt'])),
+                                  DataCell(
+                                      Text(snapshot.data!.docs[index]['nama'])),
+                                  DataCell(Text(snapshot.data!.docs[index]
+                                      ['maksud_tujuan'])),
+                                  DataCell(Text(snapshot.data!.docs[index]
+                                      ['tempat_tujuan'])),
+                                  DataCell(Text(formatDate(
+                                      snapshot.data!.docs[index]['tanggal']))),
+                                  DataCell(Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: [
+                                      ElevatedButton(
+                                        child: Text("Edit"),
+                                        onPressed: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    EditSptPage(
+                                                  idSuratTugas: snapshot
+                                                      .data!.docs[index].id,
+                                                  noSurat: snapshot.data!
+                                                      .docs[index]['no_spt'],
+                                                  pegawai: snapshot.data!
+                                                      .docs[index]['nama'],
+                                                  tempatTujuan:
+                                                      snapshot.data!.docs[index]
+                                                          ['tempat_tujuan'],
+                                                  maksudTujuan:
+                                                      snapshot.data!.docs[index]
+                                                          ['maksud_tujuan'],
+                                                  tanggal: snapshot.data!
+                                                      .docs[index]['tanggal']
+                                                      .toDate(),
+                                                ),
+                                              ));
+                                        },
+                                      ),
+                                      const SizedBox(
+                                        width: 8,
+                                      ),
+                                      ElevatedButton(
+                                        child: Text("Hapus"),
+                                        onPressed: () {
+                                          deleteData(
+                                              snapshot.data!.docs[index].id);
+                                        },
+                                      ),
+                                      const SizedBox(
+                                        width: 8,
+                                      ),
+                                      ElevatedButton(
+                                        child: Text("Cetak"),
+                                        onPressed: () {
+                                          reportSpt(
+                                            context,
+                                            snapshot.data!.docs[index]
+                                                ['no_spt'],
+                                            snapshot.data!.docs[index]['nama'],
+                                            snapshot.data!.docs[index]
+                                                ['maksud_tujuan'],
+                                            snapshot.data!.docs[index]
+                                                ['tempat_tujuan'],
+                                            formatDate(snapshot.data!
+                                                    .docs[index]['tanggal'])
+                                                .toString(),
+                                            formatDate(snapshot.data!
+                                                    .docs[index]['sendTime'])
+                                                .toString(),
+                                          );
+                                        },
+                                      )
+                                    ],
+                                  )),
+                                ]);
+                              })),
+                        ),
+                      );
+                    }
+                  }),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border(top: BorderSide(color: Colors.grey)),
+                      boxShadow: [
+                        BoxShadow(
+                            color: Colors.grey.shade500,
+                            offset: Offset(0, -1),
+                            blurRadius: 7,
+                            spreadRadius: 1)
+                      ],
+                    ),
+                    width: MediaQuery.of(context).size.width,
+                    height: 60,
+                    child: ElevatedButton(
+                      child: Text("Tambah Surat Tugas Baru"),
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => CreateSptPage(),
+                            ));
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-    ));
+    );
+  }
+
+  void deleteData(id) async {
+    try {
+      await FirebaseFirestore.instance.collection('spt').doc(id).delete();
+
+      Fluttertoast.showToast(
+          msg: "Data Berhasil Dihapus",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 3,
+          backgroundColor: Colors.blue,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    } catch (e) {
+      print(e);
+    }
   }
 
   String formatDate(date) {
     return DateFormat(
-      'EEEE, d MMM yyyy',
+      'EEEE, d MMMM yyyy',
       'id',
     ).format(date.toDate());
   }
 }
+
+ // final CollectionReference _collectionRef =
+  //     FirebaseFirestore.instance.collection('spt');
+
+  // List dataSpt = [];
+
+  // Future<void> getData() async {
+  //   // Get docs from collection reference
+  //   QuerySnapshot querySnapshot = await _collectionRef.get();
+
+  //   // Get data from docs and convert map to List
+  //   dataSpt = querySnapshot.docs.map((doc) => doc.data()).toList();
+  //   print(dataSpt[0]['id_users']);
+  // }
+

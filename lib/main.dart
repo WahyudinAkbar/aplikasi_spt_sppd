@@ -1,5 +1,6 @@
-import 'package:aplikasi_kepegawaian/pages/spt/add_spt_page.dart';
+import 'package:aplikasi_kepegawaian/pages/spt/create_spt_page.dart';
 import 'package:aplikasi_kepegawaian/pages/login/login_page.dart';
+import 'package:aplikasi_kepegawaian/pages/spt/report_spt.dart';
 import 'package:aplikasi_kepegawaian/pages/spt/spt_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +23,7 @@ class MyApp extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
         GlobalMaterialLocalizations.delegate
       ],
+      // theme: ThemeData(scaffoldBackgroundColor: Colors.grey),
       supportedLocales: [Locale('id')],
       home: SptPage(),
       debugShowCheckedModeBanner: false,
