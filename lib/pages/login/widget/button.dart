@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
-class ButtonLogin extends StatelessWidget {
+class Button extends StatelessWidget {
   final VoidCallback onTap;
   final bool isActiveButton;
+  final String text;
 
-  const ButtonLogin({
+  const Button({
     required this.onTap,
     required this.isActiveButton,
+    required this.text,
     super.key,
   });
 
@@ -21,7 +23,7 @@ class ButtonLogin extends StatelessWidget {
             backgroundColor: const Color(0xff106bff),
             disabledForegroundColor: Colors.white,
             disabledBackgroundColor: Colors.blue.shade200),
-        child: const Text("Login"),
+        child: Text(text),
       ),
     );
   }

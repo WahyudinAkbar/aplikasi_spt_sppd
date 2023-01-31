@@ -251,6 +251,7 @@ class _CreateSptPageState extends State<CreateSptPage> {
         });
       }
     });
+    print(listNama);
   }
 
   void getNoSurat() async {

@@ -1,5 +1,7 @@
-import 'package:aplikasi_kepegawaian/pages/home_pagd.dart';
-import 'package:aplikasi_kepegawaian/pages/login/widget/button_login.dart';
+import 'package:aplikasi_kepegawaian/pages/home_page.dart';
+import 'package:aplikasi_kepegawaian/pages/login/register_page.dart';
+import 'package:aplikasi_kepegawaian/pages/login/widget/already_have_account_check.dart';
+import 'package:aplikasi_kepegawaian/pages/login/widget/button.dart';
 import 'package:aplikasi_kepegawaian/pages/login/widget/header.dart';
 import 'package:aplikasi_kepegawaian/pages/login/widget/input_field.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -17,42 +19,12 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-  bool isEmailEmpty = true;
-  bool isPasswordEmpty = true;
   bool isActiveButton = false;
   int? activeId;
 
   @override
   void initState() {
     super.initState();
-
-    emailController.addListener(() {
-      final isEmailEmpty = emailController.text.isEmpty;
-
-      setState(() {
-        this.isEmailEmpty = isEmailEmpty;
-
-        if (isEmailEmpty == false && isPasswordEmpty == false) {
-          isActiveButton = true;
-        } else {
-          isActiveButton = false;
-        }
-      });
-    });
-
-    passwordController.addListener(() {
-      final isPasswordEmpty = passwordController.text.isEmpty;
-
-      setState(() {
-        this.isPasswordEmpty = isPasswordEmpty;
-
-        if (isEmailEmpty == false && isPasswordEmpty == false) {
-          isActiveButton = true;
-        } else {
-          isActiveButton = false;
-        }
-      });
-    });
   }
 
   @override
@@ -69,13 +41,18 @@ class _LoginPageState extends State<LoginPage> {
             const SizedBox(
               height: 30,
             ),
-            const Header(),
+            const Header(
+              text: "Login",
+            ),
             const SizedBox(
               height: 20,
             ),
             InputField(
               controller: emailController,
               text: "Email / Username",
+              onChanged: (value) {
+                checkActiveButton();
+              },
               onTap: () {
                 setState(() {
                   activeId = 1;
@@ -89,6 +66,9 @@ class _LoginPageState extends State<LoginPage> {
               height: 20,
             ),
             InputField(
+              onChanged: (value) {
+                checkActiveButton();
+              },
               controller: passwordController,
               text: "Passsword",
               onTap: () {
@@ -103,7 +83,8 @@ class _LoginPageState extends State<LoginPage> {
             const SizedBox(
               height: 20,
             ),
-            ButtonLogin(
+            Button(
+              text: "Login",
               onTap: () {
                 signIn(
                   emailController.text,
@@ -112,10 +93,35 @@ class _LoginPageState extends State<LoginPage> {
               },
               isActiveButton: isActiveButton,
             ),
+            const SizedBox(
+              height: 20,
+            ),
+            AlreadyHaveAccountCheck(
+              login: true,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const RegisterPage(),
+                  ),
+                );
+              },
+            ),
           ],
         ),
       )),
     );
+  }
+
+  void checkActiveButton() {
+    setState(() {
+      if (emailController.text.isNotEmpty &&
+          passwordController.text.isNotEmpty) {
+        isActiveButton = true;
+      } else {
+        isActiveButton = false;
+      }
+    });
   }
 
   void route() {

@@ -9,14 +9,16 @@ import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 
-class SptPage extends StatefulWidget {
-  const SptPage({super.key});
+import 'create_sppd_page.dart';
+
+class SppdPage extends StatefulWidget {
+  const SppdPage({super.key});
 
   @override
-  State<SptPage> createState() => _SptPageState();
+  State<SppdPage> createState() => _SppdPageState();
 }
 
-class _SptPageState extends State<SptPage> {
+class _SppdPageState extends State<SppdPage> {
   @override
   void initState() {
     super.initState();
@@ -38,7 +40,7 @@ class _SptPageState extends State<SptPage> {
               const Padding(
                 padding: EdgeInsets.only(left: 20),
                 child: Text(
-                  "Surat Perintah Tugas",
+                  "Surat Perintah Perjalanan Dinas",
                   style: TextStyle(fontSize: 26, fontWeight: FontWeight.w500),
                 ),
               ),
@@ -47,8 +49,8 @@ class _SptPageState extends State<SptPage> {
               ),
               StreamBuilder(
                   stream: FirebaseFirestore.instance
-                      .collection('spt')
-                      .orderBy('sendTime')
+                      .collection('sppd')
+                      .orderBy('send_time')
                       .snapshots(),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData) {
@@ -66,7 +68,10 @@ class _SptPageState extends State<SptPage> {
                                 DataColumn(label: Text('Nama')),
                                 DataColumn(label: Text('Maksud Tujuan')),
                                 DataColumn(label: Text('Tempat Tujuan')),
-                                DataColumn(label: Text('Tanggal')),
+                                DataColumn(label: Text('Tanggal Berangkat')),
+                                DataColumn(label: Text('Tanggal Kembali')),
+                                DataColumn(label: Text('Alat Transportasi')),
+                                DataColumn(label: Text('Keterangan Lain-lain')),
                                 DataColumn(label: Text('Action')),
                               ],
                               rows: List<DataRow>.generate(
@@ -75,10 +80,10 @@ class _SptPageState extends State<SptPage> {
                                 return DataRow(cells: [
                                   DataCell(Text(no.toString())),
                                   DataCell(Text(
-                                      snapshot.data!.docs[index]['no_spt'])),
+                                      snapshot.data!.docs[index]['no_sppd'])),
                                   DataCell(
                                       Text(snapshot.data!.docs[index]['nama'])),
-                                  DataCell(Container(
+                                  DataCell(SizedBox(
                                     width: 300,
                                     child: Text(
                                       snapshot.data!.docs[index]
@@ -89,8 +94,22 @@ class _SptPageState extends State<SptPage> {
                                   )),
                                   DataCell(Text(snapshot.data!.docs[index]
                                       ['tempat_tujuan'])),
-                                  DataCell(Text(formatDate(
-                                      snapshot.data!.docs[index]['tanggal']))),
+                                  DataCell(
+                                    Text(
+                                      formatDate(snapshot.data!.docs[index]
+                                          ['tanggal_berangkat']),
+                                    ),
+                                  ),
+                                  DataCell(
+                                    Text(
+                                      formatDate(snapshot.data!.docs[index]
+                                          ['tanggal_kembali']),
+                                    ),
+                                  ),
+                                  DataCell(Text(snapshot.data!.docs[index]
+                                      ['alat_transportasi'])),
+                                  DataCell(Text(snapshot.data!.docs[index]
+                                      ['keterangan_lain'])),
                                   DataCell(Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceAround,
@@ -183,12 +202,12 @@ class _SptPageState extends State<SptPage> {
                     width: MediaQuery.of(context).size.width,
                     height: 60,
                     child: ElevatedButton(
-                      child: Text("Tambah Surat Tugas Baru"),
+                      child: Text("Tambah Sppd Baru"),
                       onPressed: () {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => CreateSptPage(),
+                              builder: (context) => CreateSppdPage(),
                             ));
                       },
                     ),

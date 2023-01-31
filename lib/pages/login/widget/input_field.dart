@@ -4,6 +4,7 @@ class InputField extends StatelessWidget {
   final TextEditingController controller;
   final String text;
   final VoidCallback onTap;
+  final Function(String)? onChanged;
   final int id;
   final int? activeId;
   final bool isSecureText;
@@ -15,6 +16,7 @@ class InputField extends StatelessWidget {
     required this.id,
     required this.activeId,
     required this.isSecureText,
+    required this.onChanged,
     super.key,
   });
 
@@ -44,6 +46,7 @@ class InputField extends StatelessWidget {
             borderRadius: BorderRadius.circular(8)),
         child: TextFormField(
           onTap: onTap,
+          onChanged: onChanged,
           controller: controller,
           cursorColor: Colors.black,
           obscureText: isSecureText,

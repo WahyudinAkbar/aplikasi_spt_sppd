@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 
 class Header extends StatelessWidget {
-  const Header({super.key});
+  final String text;
+
+  const Header({
+    super.key,
+    required this.text,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -32,9 +37,9 @@ class Header extends StatelessWidget {
         ),
         Container(
           margin: const EdgeInsets.only(left: 10),
-          child: const Text(
-            "Login",
-            style: TextStyle(
+          child: Text(
+            text,
+            style: const TextStyle(
               fontSize: 24,
             ),
           ),

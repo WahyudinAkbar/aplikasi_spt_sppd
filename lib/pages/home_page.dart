@@ -1,4 +1,5 @@
 import 'package:aplikasi_kepegawaian/pages/login/login_page.dart';
+import 'package:aplikasi_kepegawaian/pages/spt/spt_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -17,14 +18,11 @@ class HomePage extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () {
-              FirebaseAuth.instance.signOut();
-
-              Navigator.pushAndRemoveUntil(
+              Navigator.push(
                   context,
                   (MaterialPageRoute(
-                    builder: (context) => LoginPage(),
-                  )),
-                  (route) => false);
+                    builder: (context) => SptPage(),
+                  )));
             },
             style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 14),

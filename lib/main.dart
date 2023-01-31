@@ -1,3 +1,8 @@
+import 'package:aplikasi_kepegawaian/pages/home_page.dart';
+import 'package:aplikasi_kepegawaian/pages/login/register_page.dart';
+import 'package:aplikasi_kepegawaian/pages/login/profile_page.dart';
+import 'package:aplikasi_kepegawaian/pages/pegawai/pegawai_page.dart';
+import 'package:aplikasi_kepegawaian/pages/sppd/sppd_page.dart';
 import 'package:aplikasi_kepegawaian/pages/spt/create_spt_page.dart';
 import 'package:aplikasi_kepegawaian/pages/login/login_page.dart';
 import 'package:aplikasi_kepegawaian/pages/spt/report_spt.dart';
@@ -25,7 +30,7 @@ class MyApp extends StatelessWidget {
       ],
       // theme: ThemeData(scaffoldBackgroundColor: Colors.grey),
       supportedLocales: [Locale('id')],
-      home: SptPage(),
+      home: SppdPage(),
       debugShowCheckedModeBanner: false,
     );
   }
