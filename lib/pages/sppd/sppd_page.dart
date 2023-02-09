@@ -1,3 +1,4 @@
+import 'package:aplikasi_kepegawaian/pages/sppd/edit_sppd_page.dart';
 import 'package:aplikasi_kepegawaian/pages/spt/create_spt_page.dart';
 import 'package:aplikasi_kepegawaian/pages/spt/edit_spt_page.dart';
 import 'package:aplikasi_kepegawaian/pages/spt/report_spt.dart';
@@ -121,11 +122,11 @@ class _SppdPageState extends State<SppdPage> {
                                               context,
                                               MaterialPageRoute(
                                                 builder: (context) =>
-                                                    EditSptPage(
+                                                    EditSppdPage(
                                                   idSuratTugas: snapshot
                                                       .data!.docs[index].id,
                                                   noSurat: snapshot.data!
-                                                      .docs[index]['no_spt'],
+                                                      .docs[index]['no_sppd'],
                                                   pegawai: snapshot.data!
                                                       .docs[index]['nama'],
                                                   tempatTujuan:
@@ -134,9 +135,22 @@ class _SppdPageState extends State<SppdPage> {
                                                   maksudTujuan:
                                                       snapshot.data!.docs[index]
                                                           ['maksud_tujuan'],
-                                                  tanggal: snapshot.data!
-                                                      .docs[index]['tanggal']
+                                                  tanggalBerangkat: snapshot
+                                                      .data!
+                                                      .docs[index]
+                                                          ['tanggal_berangkat']
                                                       .toDate(),
+                                                  tanggalKembali: snapshot
+                                                      .data!
+                                                      .docs[index]
+                                                          ['tanggal_kembali']
+                                                      .toDate(),
+                                                  transportasi:
+                                                      snapshot.data!.docs[index]
+                                                          ['alat_transportasi'],
+                                                  keterangan:
+                                                      snapshot.data!.docs[index]
+                                                          ['keterangan_lain'],
                                                 ),
                                               ));
                                         },
@@ -223,7 +237,7 @@ class _SppdPageState extends State<SppdPage> {
 
   void deleteData(id) async {
     try {
-      await FirebaseFirestore.instance.collection('spt').doc(id).delete();
+      await FirebaseFirestore.instance.collection('sppd').doc(id).delete();
 
       Fluttertoast.showToast(
           msg: "Data Berhasil Dihapus",

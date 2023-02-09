@@ -1,3 +1,4 @@
+import 'package:aplikasi_kepegawaian/pages/sppd/sppd_page.dart';
 import 'package:aplikasi_kepegawaian/pages/spt/spt_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
@@ -6,7 +7,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
-class EditSptPage extends StatefulWidget {
+class EditSppdPage extends StatefulWidget {
   final String idSuratTugas;
   final String noSurat;
   final String pegawai;
@@ -14,8 +15,10 @@ class EditSptPage extends StatefulWidget {
   final String maksudTujuan;
   final DateTime tanggalBerangkat;
   final DateTime tanggalKembali;
+  final String transportasi;
+  final String keterangan;
 
-  const EditSptPage({
+  const EditSppdPage({
     super.key,
     required this.idSuratTugas,
     required this.noSurat,
@@ -24,25 +27,37 @@ class EditSptPage extends StatefulWidget {
     required this.maksudTujuan,
     required this.tanggalBerangkat,
     required this.tanggalKembali,
+    required this.transportasi,
+    required this.keterangan,
   });
 
   @override
-  State<EditSptPage> createState() => _EditSptPageState();
+  State<EditSppdPage> createState() => _EditSppdPageState();
 }
 
-class _EditSptPageState extends State<EditSptPage> {
+class _EditSppdPageState extends State<EditSppdPage> {
   TextEditingController noSuratController = TextEditingController();
   TextEditingController tempatTujuanController = TextEditingController();
   TextEditingController maksudTujuanController = TextEditingController();
   TextEditingController tanggalBerangkatController = TextEditingController();
   TextEditingController tanggalKembaliController = TextEditingController();
+  TextEditingController transportasiController = TextEditingController();
+  TextEditingController keteranganController = TextEditingController();
 
   DateTime selectedDate1 = DateTime.now();
   DateTime selectedDate2 = DateTime.now();
+
   String? formattedDate;
   String? selectedValuePegawai;
 
   List<String> listNama = [];
+
+  String formatDate(selectedDate) {
+    return DateFormat(
+      'EEEE, d MMMM yyyy',
+      'id',
+    ).format(selectedDate);
+  }
 
   @override
   void initState() {
@@ -53,15 +68,11 @@ class _EditSptPageState extends State<EditSptPage> {
     tempatTujuanController.text = widget.tempatTujuan;
     maksudTujuanController.text = widget.maksudTujuan;
     selectedDate1 = widget.tanggalBerangkat;
-    tanggalBerangkatController.text = DateFormat(
-      'EEEE, d MMMM yyyy',
-      'id',
-    ).format(selectedDate1);
     selectedDate2 = widget.tanggalKembali;
-    tanggalKembaliController.text = DateFormat(
-      'EEEE, d MMMM yyyy',
-      'id',
-    ).format(selectedDate2);
+    tanggalBerangkatController.text = formatDate(selectedDate1);
+    tanggalKembaliController.text = formatDate(selectedDate2);
+    transportasiController.text = widget.transportasi;
+    keteranganController.text = widget.keterangan;
 
     getPegawai();
   }
@@ -82,10 +93,10 @@ class _EditSptPageState extends State<EditSptPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(
-                        height: 25,
+                        height: 15,
                       ),
                       Text(
-                        "Edit Surat Perintah Tugas",
+                        "Edit Surat Perintah Perjalanan Dinas",
                         style: GoogleFonts.poppins(
                           fontSize: 20,
                           fontWeight: FontWeight.w400,
@@ -221,7 +232,6 @@ class _EditSptPageState extends State<EditSptPage> {
                                   TextStyle(color: Colors.grey.shade700)),
                         ),
                       ),
-                      const SizedBox(height: 15),
                       const SizedBox(
                         height: 15,
                       ),
@@ -270,13 +280,69 @@ class _EditSptPageState extends State<EditSptPage> {
                         child: TextFormField(
                           controller: tanggalKembaliController,
                           onTap: () {
-                            selectDate(tanggalKembaliController, false);
+                            setState(() {
+                              selectDate(tanggalKembaliController, false);
+                            });
                           },
                           readOnly: true,
                           cursorColor: Colors.black,
                           style: GoogleFonts.poppins(fontSize: 15),
                           decoration: InputDecoration(
-                              hintText: "Tanggal Kembali",
+                              hintText: "Tanggal berangkat",
+                              border: InputBorder.none,
+                              hintStyle:
+                                  TextStyle(color: Colors.grey.shade700)),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 15,
+                      ),
+                      Text(
+                        "Alat Transportasi",
+                        style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      Container(
+                        padding: const EdgeInsets.only(left: 15, top: 3),
+                        decoration: BoxDecoration(
+                            color: const Color(0xffEBECF0),
+                            borderRadius: BorderRadius.circular(8)),
+                        child: TextFormField(
+                          onTap: () {},
+                          controller: transportasiController,
+                          cursorColor: Colors.black,
+                          style: GoogleFonts.poppins(fontSize: 15),
+                          decoration: InputDecoration(
+                              hintText: "Alat Transportasi",
+                              border: InputBorder.none,
+                              hintStyle:
+                                  TextStyle(color: Colors.grey.shade700)),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 15,
+                      ),
+                      Text(
+                        "Keterangan Lain-lain",
+                        style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      Container(
+                        padding: const EdgeInsets.only(left: 15, top: 3),
+                        decoration: BoxDecoration(
+                            color: const Color(0xffEBECF0),
+                            borderRadius: BorderRadius.circular(8)),
+                        child: TextFormField(
+                          onTap: () {},
+                          controller: keteranganController,
+                          cursorColor: Colors.black,
+                          style: GoogleFonts.poppins(fontSize: 15),
+                          decoration: InputDecoration(
+                              hintText: "Keterangan Lain lain",
                               border: InputBorder.none,
                               hintStyle:
                                   TextStyle(color: Colors.grey.shade700)),
@@ -308,13 +374,13 @@ class _EditSptPageState extends State<EditSptPage> {
                   width: MediaQuery.of(context).size.width,
                   height: 60,
                   child: ElevatedButton(
-                      child: const Text("Update Data"),
+                      child: const Text("Simpan"),
                       onPressed: () {
                         updateSuratTugas();
                         Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => SptPage(),
+                              builder: (context) => const SppdPage(),
                             ),
                             (Route<dynamic> route) => false);
                       }),
@@ -325,7 +391,7 @@ class _EditSptPageState extends State<EditSptPage> {
         ));
   }
 
-  void getPegawai() async {
+  Future getPegawai() async {
     await FirebaseFirestore.instance
         .collection('users')
         .get()
@@ -338,18 +404,21 @@ class _EditSptPageState extends State<EditSptPage> {
     });
   }
 
-  void updateSuratTugas() async {
+  Future updateSuratTugas() async {
     try {
       await FirebaseFirestore.instance
-          .collection('spt')
+          .collection('sppd')
           .doc(widget.idSuratTugas)
           .update({
-        'no_spt': noSuratController.text,
+        'no_sppd': noSuratController.text,
         'nama': selectedValuePegawai,
         'maksud_tujuan': maksudTujuanController.text,
         'tempat_tujuan': tempatTujuanController.text,
         'tanggal_berangkat': selectedDate1,
         'tanggal_kembali': selectedDate2,
+        'alat_transportasi': transportasiController.text,
+        'keterangan_lain':
+            keteranganController.text.isEmpty ? "" : keteranganController.text,
       });
 
       Fluttertoast.showToast(

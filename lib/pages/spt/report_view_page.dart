@@ -3,15 +3,15 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 
-class ReportViewPage extends StatefulWidget {
+class ReportSptViewPage extends StatefulWidget {
   final String path;
-  const ReportViewPage({super.key, required this.path});
+  const ReportSptViewPage({super.key, required this.path});
 
   @override
-  State<ReportViewPage> createState() => _ReportViewPageState();
+  State<ReportSptViewPage> createState() => _ReportSptViewPageState();
 }
 
-class _ReportViewPageState extends State<ReportViewPage> {
+class _ReportSptViewPageState extends State<ReportSptViewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -66,7 +66,8 @@ class _SptPageState extends State<SptPage> {
                                 DataColumn(label: Text('Nama')),
                                 DataColumn(label: Text('Maksud Tujuan')),
                                 DataColumn(label: Text('Tempat Tujuan')),
-                                DataColumn(label: Text('Tanggal')),
+                                DataColumn(label: Text('Tanggal Berangkat')),
+                                DataColumn(label: Text('Tanggal Kembali')),
                                 DataColumn(label: Text('Action')),
                               ],
                               rows: List<DataRow>.generate(
@@ -89,8 +90,10 @@ class _SptPageState extends State<SptPage> {
                                   )),
                                   DataCell(Text(snapshot.data!.docs[index]
                                       ['tempat_tujuan'])),
-                                  DataCell(Text(formatDate(
-                                      snapshot.data!.docs[index]['tanggal']))),
+                                  DataCell(Text(formatDate(snapshot.data!
+                                      .docs[index]['tanggal_berangkat']))),
+                                  DataCell(Text(formatDate(snapshot
+                                      .data!.docs[index]['tanggal_kembali']))),
                                   DataCell(Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceAround,
@@ -115,8 +118,15 @@ class _SptPageState extends State<SptPage> {
                                                   maksudTujuan:
                                                       snapshot.data!.docs[index]
                                                           ['maksud_tujuan'],
-                                                  tanggal: snapshot.data!
-                                                      .docs[index]['tanggal']
+                                                  tanggalBerangkat: snapshot
+                                                      .data!
+                                                      .docs[index]
+                                                          ['tanggal_berangkat']
+                                                      .toDate(),
+                                                  tanggalKembali: snapshot
+                                                      .data!
+                                                      .docs[index]
+                                                          ['tanggal_kembali']
                                                       .toDate(),
                                                 ),
                                               ));
@@ -221,7 +231,7 @@ class _SptPageState extends State<SptPage> {
 
   String formatDate(date) {
     return DateFormat(
-      'EEEE, d MMMM yyyy',
+      'd MMMM yyyy',
       'id',
     ).format(date.toDate());
   }

@@ -1,5 +1,4 @@
 import 'package:aplikasi_kepegawaian/pages/sppd/sppd_page.dart';
-import 'package:aplikasi_kepegawaian/pages/spt/spt_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
@@ -250,7 +249,7 @@ class _CreateSppdPageState extends State<CreateSppdPage> {
                           cursorColor: Colors.black,
                           style: GoogleFonts.poppins(fontSize: 15),
                           decoration: InputDecoration(
-                              hintText: "Tanggal berangkat",
+                              hintText: "Tanggal Kembali",
                               border: InputBorder.none,
                               hintStyle:
                                   TextStyle(color: Colors.grey.shade700)),
@@ -353,7 +352,7 @@ class _CreateSppdPageState extends State<CreateSppdPage> {
         ));
   }
 
-  void getPegawai() async {
+  Future getPegawai() async {
     await FirebaseFirestore.instance
         .collection('users')
         .get()
@@ -366,7 +365,7 @@ class _CreateSppdPageState extends State<CreateSppdPage> {
     });
   }
 
-  void getNoSurat() async {
+  Future getNoSurat() async {
     var snap = await FirebaseFirestore.instance
         .collection('sppd')
         .orderBy('send_time', descending: true)
@@ -391,7 +390,8 @@ class _CreateSppdPageState extends State<CreateSppdPage> {
         'tanggal_berangkat': selectedDate1,
         'tanggal_kembali': selectedDate2,
         'alat_transportasi': transportasiController.text,
-        'keterangan_lain': keteranganController.text,
+        'keterangan_lain':
+            keteranganController.text.isEmpty ? "" : keteranganController.text,
         'send_time': DateTime.now(),
       });
 

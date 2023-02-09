@@ -314,6 +314,6 @@ reportSpt(
   Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ReportViewPage(path: path),
+        builder: (context) => ReportSptViewPage(path: path),
       ));
 }
