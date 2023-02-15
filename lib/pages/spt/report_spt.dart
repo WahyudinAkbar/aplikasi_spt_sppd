@@ -56,7 +56,13 @@ reportSpt(
               ),
             ])
           ]),
-          pw.Divider(),
+          pw.Stack(children: [
+            pw.Divider(),
+            pw.Container(
+              padding: pw.EdgeInsets.only(top: 2),
+              child: pw.Divider(),
+            )
+          ]),
           pw.SizedBox(height: 20),
           pw.Center(
             child: pw.Text(

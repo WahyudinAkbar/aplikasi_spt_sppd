@@ -3,20 +3,20 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 
-class ReportSppdViewPage extends StatefulWidget {
+class ReportPegawaiViewPage extends StatefulWidget {
   final String path;
-  const ReportSppdViewPage({super.key, required this.path});
+  const ReportPegawaiViewPage({super.key, required this.path});
 
   @override
-  State<ReportSppdViewPage> createState() => _ReportSppdViewPageState();
+  State<ReportPegawaiViewPage> createState() => _ReportPegawaiViewPageState();
 }
 
-class _ReportSppdViewPageState extends State<ReportSppdViewPage> {
+class _ReportPegawaiViewPageState extends State<ReportPegawaiViewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Sppd'),
+        title: Text('Pegawai'),
       ),
       body: Container(
         decoration: BoxDecoration(color: Colors.grey),
@@ -24,8 +24,7 @@ class _ReportSppdViewPageState extends State<ReportSppdViewPage> {
         child: PDFView(
           filePath: widget.path,
           enableSwipe: true,
-          swipeHorizontal: true,
-          autoSpacing: false,
+          autoSpacing: true,
           pageFling: false,
           onError: (error) {
             print(error.toString());

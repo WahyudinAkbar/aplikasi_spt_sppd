@@ -1,5 +1,6 @@
 import 'package:aplikasi_kepegawaian/pages/login/login_page.dart';
 import 'package:aplikasi_kepegawaian/pages/pegawai/pegawai_page.dart';
+import 'package:aplikasi_kepegawaian/pages/sppd/laporan_rekap_sppd.dart';
 import 'package:aplikasi_kepegawaian/pages/sppd/sppd_page.dart';
 import 'package:aplikasi_kepegawaian/pages/spt/spt_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -237,6 +238,49 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ],
+            ),
+            GestureDetector(
+              onTap: () => laporanRekapSppd(context),
+              child: Container(
+                margin: const EdgeInsets.symmetric(vertical: 20),
+                padding: const EdgeInsets.all(15),
+                width: MediaQuery.of(context).size.width / 2 - 40,
+                height: 125,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.shade500,
+                      offset: const Offset(1, 1),
+                      blurRadius: 7,
+                      spreadRadius: 1,
+                    ),
+                    const BoxShadow(
+                        color: Colors.white,
+                        offset: Offset(-1, -1),
+                        blurRadius: 7,
+                        spreadRadius: 1)
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    const FaIcon(
+                      FontAwesomeIcons.solidUser,
+                      size: 40,
+                      color: Colors.blue,
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Text(
+                      "Rekap",
+                      style: GoogleFonts.poppins(),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
             ),
           ],
         ),

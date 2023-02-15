@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -17,9 +19,27 @@ class _ProfilePageState extends State<ProfilePage> {
 
   String? selectedValuePangkat;
 
+  List golongan = [];
+
+  void getGolongan() async {
+    await FirebaseFirestore.instance
+        .collection('golongan')
+        .orderBy('nama_golongan', descending: true)
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+      for (var document in querySnapshot.docs) {
+        setState(() {
+          golongan.add(document['nama_golongan']);
+        });
+      }
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+
+    getGolongan();
   }
 
   @override
@@ -144,7 +164,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       dropdownDecoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(15),
                       ),
-                      items: pangkat
+                      items: golongan
                           .map((item) => DropdownMenuItem<String>(
                                 value: item,
                                 child: Text(
@@ -343,22 +363,3 @@ class _ProfilePageState extends State<ProfilePage> {
 //   }
 // }
 
-List pangkat = [
-  "Juru Muda / I a",
-  "Juru Muda Tingkat / I b"
-      "Juru / I c",
-  "Juru Tingkat I / I d",
-  "Pengatur Muda / II a",
-  "Pengatur Muda Tingkat I / II b",
-  "Pengatur / II c",
-  "Pengatur Tingkat I / II d",
-  "Penata Muda / III a",
-  "Penata Muda Tingkat I / III b",
-  "Penata / III c",
-  "Penata Tingkat I / III d",
-  "Pembina / IV a",
-  "Pembina Tingkat I / IV b",
-  "Pembina Muda / IV c",
-  "Pembina Madya / IV d",
-  "Pembina Utama / IV e",
-];

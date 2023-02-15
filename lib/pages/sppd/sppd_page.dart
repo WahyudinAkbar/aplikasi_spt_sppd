@@ -1,4 +1,5 @@
 import 'package:aplikasi_kepegawaian/pages/sppd/edit_sppd_page.dart';
+import 'package:aplikasi_kepegawaian/pages/sppd/laporan_sppd.dart';
 import 'package:aplikasi_kepegawaian/pages/spt/create_spt_page.dart';
 import 'package:aplikasi_kepegawaian/pages/spt/edit_spt_page.dart';
 import 'package:aplikasi_kepegawaian/pages/spt/report_spt.dart';
@@ -23,6 +24,7 @@ class _SppdPageState extends State<SppdPage> {
   @override
   void initState() {
     super.initState();
+
     // getData();
   }
 
@@ -171,20 +173,34 @@ class _SppdPageState extends State<SppdPage> {
                                       ElevatedButton(
                                         child: Text("Cetak"),
                                         onPressed: () {
-                                          reportSpt(
+                                          laporanSppd(
                                             context,
                                             snapshot.data!.docs[index]
-                                                ['no_spt'],
+                                                ['no_sppd'],
                                             snapshot.data!.docs[index]['nama'],
                                             snapshot.data!.docs[index]
                                                 ['maksud_tujuan'],
                                             snapshot.data!.docs[index]
                                                 ['tempat_tujuan'],
-                                            formatDate(snapshot.data!
-                                                    .docs[index]['tanggal'])
+                                            formatDate(
+                                                    snapshot.data!.docs[index]
+                                                        ['tanggal_berangkat'])
                                                 .toString(),
+                                            formatDate(
+                                                    snapshot.data!.docs[index]
+                                                        ['tanggal_kembali'])
+                                                .toString(),
+                                            hitungHari(
+                                                snapshot.data!.docs[index]
+                                                    ['tanggal_kembali'],
+                                                snapshot.data!.docs[index]
+                                                    ['tanggal_berangkat']),
+                                            snapshot.data!.docs[index]
+                                                ['alat_transportasi'],
+                                            snapshot.data!.docs[index]
+                                                ['keterangan_lain'],
                                             formatDate(snapshot.data!
-                                                    .docs[index]['sendTime'])
+                                                    .docs[index]['send_time'])
                                                 .toString(),
                                           );
                                         },
@@ -252,9 +268,17 @@ class _SppdPageState extends State<SppdPage> {
     }
   }
 
+  String hitungHari(tglKembali, tglBerangkat) {
+    tglKembali = tglKembali.toDate();
+    tglBerangkat = tglBerangkat.toDate();
+    var hari = tglKembali.difference(tglBerangkat).inDays + 1;
+
+    return hari.toString();
+  }
+
   String formatDate(date) {
     return DateFormat(
-      'EEEE, d MMMM yyyy',
+      'd MMMM yyyy',
       'id',
     ).format(date.toDate());
   }

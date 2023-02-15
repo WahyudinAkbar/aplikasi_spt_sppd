@@ -1,5 +1,7 @@
 import 'package:aplikasi_kepegawaian/pages/login/profile_page.dart';
 import 'package:aplikasi_kepegawaian/pages/pegawai/edit_pegawai_page.dart';
+import 'package:aplikasi_kepegawaian/pages/pegawai/report_pegawai.dart';
+import 'package:aplikasi_kepegawaian/pages/pegawai/report_pegawai_view_page.dart';
 import 'package:aplikasi_kepegawaian/pages/spt/create_spt_page.dart';
 import 'package:aplikasi_kepegawaian/pages/spt/edit_spt_page.dart';
 import 'package:aplikasi_kepegawaian/pages/spt/report_spt.dart';
@@ -20,9 +22,21 @@ class PegawaiPage extends StatefulWidget {
 }
 
 class _PegawaiPageState extends State<PegawaiPage> {
+  Future<void> getData() async {
+    // Get docs from collection reference
+    QuerySnapshot querySnapshot =
+        await FirebaseFirestore.instance.collection('users').get();
+
+    // Get data from docs and convert map to List
+    final allData = querySnapshot.docs.map((doc) => doc.data()).toList();
+
+    print(allData);
+  }
+
   @override
   void initState() {
     super.initState();
+    getData();
   }
 
   @override
@@ -150,12 +164,7 @@ class _PegawaiPageState extends State<PegawaiPage> {
                     child: ElevatedButton(
                       child: Text("Cetak Data Pegawai"),
                       onPressed: () {
-                        Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ProfilePage(),
-                            ),
-                            (Route<dynamic> route) => false);
+                        reportPegawai(context);
                       },
                     ),
                   ),
