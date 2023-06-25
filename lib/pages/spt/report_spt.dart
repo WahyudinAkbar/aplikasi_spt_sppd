@@ -7,19 +7,21 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 
 reportSpt(
-  BuildContext context,
   String noSurat,
   String nama,
   String maksudTujuan,
   String tempatTujuan,
-  String tanggal,
+  String alatTransportasi,
+  String tanggalBerangkat,
+  String tanggalKembali,
   String tanggalBuatSpt,
 ) async {
   final pdf = pw.Document();
   final image = pw.MemoryImage(
-    (await rootBundle.load('assets/logo_report_spt.jpg')).buffer.asUint8List(),
+    (await rootBundle.load('assets/logo_report_sppd.png')).buffer.asUint8List(),
   );
 
   final getUser = await FirebaseFirestore.instance
@@ -59,7 +61,7 @@ reportSpt(
           pw.Stack(children: [
             pw.Divider(),
             pw.Container(
-              padding: pw.EdgeInsets.only(top: 2),
+              padding: const pw.EdgeInsets.only(top: 2),
               child: pw.Divider(),
             )
           ]),
@@ -164,7 +166,7 @@ reportSpt(
                 ]),
                 pw.TableRow(children: [
                   pw.Padding(
-                    padding: pw.EdgeInsets.all(9),
+                    padding: const pw.EdgeInsets.all(9),
                     child: pw.Text(
                       '1',
                       textAlign: pw.TextAlign.center,
@@ -174,7 +176,7 @@ reportSpt(
                     ),
                   ),
                   pw.Padding(
-                    padding: pw.EdgeInsets.all(6),
+                    padding: const pw.EdgeInsets.all(6),
                     child: pw.Text(
                       nama,
                       style: pw.TextStyle(
@@ -183,7 +185,7 @@ reportSpt(
                     ),
                   ),
                   pw.Padding(
-                    padding: pw.EdgeInsets.all(6),
+                    padding: const pw.EdgeInsets.all(6),
                     child: pw.Text(
                       getUser.docs[0]['golongan'],
                       style: pw.TextStyle(
@@ -192,7 +194,7 @@ reportSpt(
                     ),
                   ),
                   pw.Padding(
-                    padding: pw.EdgeInsets.all(6),
+                    padding: const pw.EdgeInsets.all(6),
                     child: pw.Text(
                       getUser.docs[0]['jabatan'],
                       style: pw.TextStyle(
@@ -210,7 +212,7 @@ reportSpt(
           }, children: [
             pw.TableRow(children: [
               pw.Text(
-                'Untuk',
+                'Perihal',
                 style: pw.TextStyle(
                   fontSize: 12,
                 ),
@@ -230,28 +232,57 @@ reportSpt(
             ]),
             pw.TableRow(children: [
               pw.Padding(
-                padding: pw.EdgeInsets.symmetric(vertical: 3),
+                padding: const pw.EdgeInsets.symmetric(vertical: 3),
                 child: pw.Text(
                   'Tanggal',
-                  style: pw.TextStyle(
+                  style: const pw.TextStyle(
                     fontSize: 12,
                   ),
                 ),
               ),
               pw.Padding(
-                padding: pw.EdgeInsets.symmetric(vertical: 3),
+                padding: const pw.EdgeInsets.symmetric(vertical: 3),
                 child: pw.Text(
                   ':',
-                  style: pw.TextStyle(
+                  style: const pw.TextStyle(
                     fontSize: 12,
                   ),
                 ),
               ),
               pw.Padding(
-                padding: pw.EdgeInsets.symmetric(vertical: 3),
+                padding: const pw.EdgeInsets.symmetric(vertical: 3),
                 child: pw.Text(
-                  tanggal,
-                  style: pw.TextStyle(
+                  "$tanggalBerangkat s.d $tanggalKembali",
+                  style: const pw.TextStyle(
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ]),
+            pw.TableRow(children: [
+              pw.Padding(
+                padding: const pw.EdgeInsets.symmetric(vertical: 3),
+                child: pw.Text(
+                  'Alat Transportasi',
+                  style: const pw.TextStyle(
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+              pw.Padding(
+                padding: const pw.EdgeInsets.symmetric(vertical: 3),
+                child: pw.Text(
+                  ':',
+                  style: const pw.TextStyle(
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+              pw.Padding(
+                padding: const pw.EdgeInsets.symmetric(vertical: 3),
+                child: pw.Text(
+                  "$alatTransportasi",
+                  style: const pw.TextStyle(
                     fontSize: 12,
                   ),
                 ),
@@ -281,7 +312,7 @@ reportSpt(
           pw.SizedBox(height: 18),
           pw.Text(
               'Demikian Surat Perintah Tugas ini diberikan untuk dipergunakan sebagaimana mestinya.',
-              style: pw.TextStyle(
+              style: const pw.TextStyle(
                 fontSize: 12,
               )),
           pw.SizedBox(height: 18),
@@ -290,13 +321,13 @@ reportSpt(
               child: pw.Column(children: [
                 pw.Text('Dikeluarkan di Kandangan\n$tanggalBuatSpt',
                     textAlign: pw.TextAlign.center,
-                    style: pw.TextStyle(
+                    style: const pw.TextStyle(
                       fontSize: 12,
                     )),
                 pw.SizedBox(height: 18),
                 pw.Text('Kepala Dinas',
                     textAlign: pw.TextAlign.center,
-                    style: pw.TextStyle(
+                    style: const pw.TextStyle(
                       fontSize: 12,
                     )),
                 pw.SizedBox(height: 72),
@@ -317,9 +348,7 @@ reportSpt(
   await file.writeAsBytes(await pdf.save());
 
   // ignore: use_build_context_synchronously
-  Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ReportSptViewPage(path: path),
-      ));
+  await Printing.layoutPdf(
+    onLayout: (format) async => pdf.save(),
+  );
 }

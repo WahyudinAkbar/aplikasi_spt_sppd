@@ -1,18 +1,16 @@
 import 'dart:io';
 
-import 'package:aplikasi_kepegawaian/pages/pegawai/report_pegawai_view_page.dart';
-import 'package:aplikasi_kepegawaian/pages/sppd/laporan_sppd_page.dart';
 import 'package:aplikasi_kepegawaian/pages/spt/report_view_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:open_file_plus/open_file_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 
-reportPegawai(
-  BuildContext context,
-) async {
+Future reportPegawai() async {
   final pdf = pw.Document();
   final image = pw.MemoryImage(
     (await rootBundle.load('assets/logo_report_sppd.png')).buffer.asUint8List(),
@@ -41,24 +39,30 @@ reportPegawai(
                   pw.Text(
                     'PEMERINTAH KABUPATEN HULU SUNGAI SELATAN',
                     style: pw.TextStyle(
-                        fontSize: 16, fontWeight: pw.FontWeight.bold),
+                      fontSize: 16,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
                   ),
                   pw.Text(
                     'DINAS KOMUNIKASI DAN INFORMATIKA',
                     style: pw.TextStyle(
-                        fontSize: 18, fontWeight: pw.FontWeight.bold),
+                      fontSize: 18,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
                   ),
                   pw.Text(
                     'Jalan Aluh Idut No. 66 A Telp / Fax. (0517) 21230  KANDANGAN - 71212',
                     style: pw.TextStyle(
-                        fontSize: 12, fontWeight: pw.FontWeight.bold),
+                      fontSize: 12,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
                   ),
                 ])
               ]),
               pw.Stack(children: [
                 pw.Divider(),
                 pw.Container(
-                  padding: pw.EdgeInsets.only(top: 2),
+                  padding: const pw.EdgeInsets.only(top: 2),
                   child: pw.Divider(),
                 )
               ]),
@@ -66,7 +70,9 @@ reportPegawai(
               pw.Center(
                 child: pw.Text(
                   'Data Pegawai',
-                  style: pw.TextStyle(fontSize: 18),
+                  style: pw.TextStyle(
+                    fontSize: 18,
+                  ),
                 ),
               ),
               pw.SizedBox(height: 10),
@@ -77,38 +83,66 @@ reportPegawai(
                     pw.Text(
                       'Nama',
                       textAlign: pw.TextAlign.center,
+                      style: pw.TextStyle(),
                     ),
                     pw.Text(
                       'NIP',
                       textAlign: pw.TextAlign.center,
+                      style: pw.TextStyle(),
                     ),
                     pw.Text(
                       'Golongan',
                       textAlign: pw.TextAlign.center,
+                      style: pw.TextStyle(),
+                    ),
+                    pw.Text(
+                      'Bidang',
+                      textAlign: pw.TextAlign.center,
+                      style: pw.TextStyle(),
                     ),
                     pw.Text(
                       'Jabatan',
                       textAlign: pw.TextAlign.center,
+                      style: pw.TextStyle(),
                     ),
                   ]),
                   for (var user in users)
                     pw.TableRow(
                       children: [
                         pw.Padding(
-                          padding: pw.EdgeInsets.all(3),
-                          child: pw.Text(user['nama']),
+                          padding: const pw.EdgeInsets.all(3),
+                          child: pw.Text(user['nama'],
+                              style: pw.TextStyle(
+                                fontSize: 8,
+                              )),
                         ),
                         pw.Padding(
-                          padding: pw.EdgeInsets.all(3),
-                          child: pw.Text(user['nip']),
+                          padding: const pw.EdgeInsets.all(3),
+                          child: pw.Text(user['nip'],
+                              style: pw.TextStyle(
+                                fontSize: 8,
+                              )),
                         ),
                         pw.Padding(
-                          padding: pw.EdgeInsets.all(3),
-                          child: pw.Text(user['golongan']),
+                          padding: const pw.EdgeInsets.all(3),
+                          child: pw.Text(user['golongan'],
+                              style: pw.TextStyle(
+                                fontSize: 8,
+                              )),
                         ),
                         pw.Padding(
-                          padding: pw.EdgeInsets.all(3),
-                          child: pw.Text(user['jabatan']),
+                          padding: const pw.EdgeInsets.all(3),
+                          child: pw.Text(user['bidang'],
+                              style: pw.TextStyle(
+                                fontSize: 8,
+                              )),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(3),
+                          child: pw.Text(user['jabatan'],
+                              style: pw.TextStyle(
+                                fontSize: 8,
+                              )),
                         ),
                       ],
                     ),
@@ -119,15 +153,26 @@ reportPegawai(
         ];
       }));
 
-  final String dir = (await getApplicationDocumentsDirectory()).path;
-  final String path = '$dir/report.pdf';
-  final File file = File(path);
-  await file.writeAsBytes(await pdf.save());
+  // simpan
+  Uint8List bytes = await pdf.save();
+
+  // buat file kosong di direktori
+  final dir = await getApplicationDocumentsDirectory();
+  final file = File('${dir.path}/mydocument.pdf');
+
+  // timpa file kosong dengan file pdf
+  await file.writeAsBytes(bytes);
+
+  // open pdf
+  // return await OpenFile.open(file.path.toString());
+  await Printing.layoutPdf(
+    onLayout: (format) async => pdf.save(),
+  );
 
   // ignore: use_build_context_synchronously
-  Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ReportPegawaiViewPage(path: path),
-      ));
+  // Navigator.push(
+  //     context,
+  //     MaterialPageRoute(
+  //       builder: (context) => ReportPegawaiViewPage(path: path),
+  //     ));
 }

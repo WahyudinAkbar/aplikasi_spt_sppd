@@ -1,13 +1,17 @@
-import 'package:aplikasi_kepegawaian/pages/home_page.dart';
+import 'package:aplikasi_kepegawaian/pages/homepage/home_page.dart';
+import 'package:aplikasi_kepegawaian/pages/homepage/home_page_user.dart';
 import 'package:aplikasi_kepegawaian/pages/login/register_page.dart';
 import 'package:aplikasi_kepegawaian/pages/login/widget/already_have_account_check.dart';
 import 'package:aplikasi_kepegawaian/pages/login/widget/button.dart';
 import 'package:aplikasi_kepegawaian/pages/login/widget/header.dart';
 import 'package:aplikasi_kepegawaian/pages/login/widget/input_field.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+
+import '../../constant.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -134,19 +138,19 @@ class _LoginPageState extends State<LoginPage> {
       {
         if (documentSnapshot.exists) {
           if (documentSnapshot.get("roles") == "admin") {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const HomePage(),
-              ),
-            );
+            Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const HomePage(),
+                ),
+                (Route<dynamic> route) => false);
           } else {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const HomePage(),
-              ),
-            );
+            Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const HomePageUser(),
+                ),
+                (Route<dynamic> route) => false);
           }
         }
       }
@@ -155,6 +159,14 @@ class _LoginPageState extends State<LoginPage> {
 
   void signIn(String email, String password) async {
     try {
+      final key = encrypt.Key.fromUtf8(secret);
+      final iv = encrypt.IV.fromLength(16);
+
+      final encrypter = encrypt.Encrypter(encrypt.AES(key));
+
+      final encrypted = encrypter.encrypt(password, iv: iv);
+      print(encrypted.base64);
+
       QuerySnapshot snap = await FirebaseFirestore.instance
           .collection('users')
           .where("username", isEqualTo: email)
@@ -163,12 +175,12 @@ class _LoginPageState extends State<LoginPage> {
       if (snap.docs.isEmpty) {
         await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: email,
-          password: password,
+          password: encrypted.base64,
         );
       } else {
         await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: snap.docs[0]['email'],
-          password: password,
+          password: encrypted.base64,
         );
       }
       route();

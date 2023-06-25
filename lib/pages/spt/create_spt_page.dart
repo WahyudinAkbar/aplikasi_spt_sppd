@@ -19,6 +19,7 @@ class _CreateSptPageState extends State<CreateSptPage> {
   TextEditingController noSuratController = TextEditingController();
   TextEditingController tempatTujuanController = TextEditingController();
   TextEditingController maksudTujuanController = TextEditingController();
+  TextEditingController alatTransportasiController = TextEditingController();
   TextEditingController tanggalBerangkatController = TextEditingController();
   TextEditingController tanggalKembaliController = TextEditingController();
 
@@ -196,6 +197,33 @@ class _CreateSptPageState extends State<CreateSptPage> {
                         height: 15,
                       ),
                       Text(
+                        "Alat Transportasi",
+                        style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      Container(
+                        padding: const EdgeInsets.only(left: 15, top: 3),
+                        decoration: BoxDecoration(
+                            color: const Color(0xffEBECF0),
+                            borderRadius: BorderRadius.circular(8)),
+                        child: TextFormField(
+                          onTap: () {},
+                          controller: alatTransportasiController,
+                          cursorColor: Colors.black,
+                          style: GoogleFonts.poppins(fontSize: 15),
+                          decoration: InputDecoration(
+                              hintText: "Alat Transportasi",
+                              border: InputBorder.none,
+                              hintStyle:
+                                  TextStyle(color: Colors.grey.shade700)),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 15,
+                      ),
+                      Text(
                         "Tanggal Berangkat",
                         style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
                       ),
@@ -331,6 +359,7 @@ class _CreateSptPageState extends State<CreateSptPage> {
           'nama': selectedValuePegawai,
           'maksud_tujuan': maksudTujuanController.text,
           'tempat_tujuan': tempatTujuanController.text,
+          'alat_transportasi': alatTransportasiController.text,
           'tanggal_berangkat': selectedDate1,
           'tanggal_kembali': selectedDate2,
           'sendTime': DateTime.now(),

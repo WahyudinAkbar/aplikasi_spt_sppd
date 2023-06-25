@@ -14,29 +14,18 @@
 //   void tambahPangkat(String nama) async {
 //     try {
 //       await FirebaseFirestore.instance
-//           .collection('golongan')
-//           .add({'nama_golongan': nama});
+//           .collection('bidang')
+//           .add({'nama_bidang': nama});
 //     } catch (e) {}
 //   }
 
 //   List pangkat = [
-//     "Juru Muda / I a",
-//     "Juru Muda Tingkat / I b",
-//     "Juru / I c",
-//     "Juru Tingkat I / I d",
-//     "Pengatur Muda / II a",
-//     "Pengatur Muda Tingkat I / II b",
-//     "Pengatur / II c",
-//     "Pengatur Tingkat I / II d",
-//     "Penata Muda / III a",
-//     "Penata Muda Tingkat I / III b",
-//     "Penata / III c",
-//     "Penata Tingkat I / III d",
-//     "Pembina / IV a",
-//     "Pembina Tingkat I / IV b",
-//     "Pembina Muda / IV c",
-//     "Pembina Madya / IV d",
-//     "Pembina Utama / IV e",
+//     "Komunikasi dan Informasi Publik",
+//     "Persandian dan Statistik",
+//     "Teknologi Informasi dan Komunikasi",
+//     "Umum dan Kepegawaian",
+//     "Keuangan",
+//     "Perencanaan"
 //   ];
 
 //   @override

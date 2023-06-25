@@ -1,43 +1,29 @@
+import 'package:aplikasi_kepegawaian/pages/nota_dinas/nota_dinas_page%20copy.dart';
+import 'package:aplikasi_kepegawaian/pages/nota_dinas/nota_dinas_page.dart';
 import 'package:aplikasi_kepegawaian/pages/spt/spt_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
-class EditSptPage extends StatefulWidget {
-  final String idSuratTugas;
-  final String noSurat;
-  final String pegawai;
-  final String tempatTujuan;
-  final String maksudTujuan;
-  final String alatTransportasi;
-  final DateTime tanggalBerangkat;
-  final DateTime tanggalKembali;
-
-  const EditSptPage({
-    super.key,
-    required this.idSuratTugas,
-    required this.noSurat,
-    required this.pegawai,
-    required this.tempatTujuan,
-    required this.maksudTujuan,
-    required this.tanggalBerangkat,
-    required this.tanggalKembali,
-    required this.alatTransportasi,
-  });
+class CreateNotaDinasPage extends StatefulWidget {
+  const CreateNotaDinasPage({super.key});
 
   @override
-  State<EditSptPage> createState() => _EditSptPageState();
+  State<CreateNotaDinasPage> createState() => _CreateNotaDinasPageState();
 }
 
-class _EditSptPageState extends State<EditSptPage> {
+class _CreateNotaDinasPageState extends State<CreateNotaDinasPage> {
   TextEditingController noSuratController = TextEditingController();
   TextEditingController tempatTujuanController = TextEditingController();
   TextEditingController maksudTujuanController = TextEditingController();
-
-  TextEditingController alatTransportasiController = TextEditingController();
+  TextEditingController perihalController = TextEditingController();
+  TextEditingController dasarController = TextEditingController();
   TextEditingController tanggalBerangkatController = TextEditingController();
   TextEditingController tanggalKembaliController = TextEditingController();
 
@@ -52,24 +38,8 @@ class _EditSptPageState extends State<EditSptPage> {
   void initState() {
     super.initState();
 
-    noSuratController.text = widget.noSurat;
-    selectedValuePegawai = widget.pegawai;
-    tempatTujuanController.text = widget.tempatTujuan;
-    maksudTujuanController.text = widget.maksudTujuan;
-
-    alatTransportasiController.text = widget.alatTransportasi;
-    selectedDate1 = widget.tanggalBerangkat;
-    tanggalBerangkatController.text = DateFormat(
-      'EEEE, d MMMM yyyy',
-      'id',
-    ).format(selectedDate1);
-    selectedDate2 = widget.tanggalKembali;
-    tanggalKembaliController.text = DateFormat(
-      'EEEE, d MMMM yyyy',
-      'id',
-    ).format(selectedDate2);
-
     getPegawai();
+    getNoSurat();
   }
 
   @override
@@ -88,10 +58,10 @@ class _EditSptPageState extends State<EditSptPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(
-                        height: 25,
+                        height: 15,
                       ),
                       Text(
-                        "Edit Surat Perintah Tugas",
+                        "Tambah Nota Dinas",
                         style: GoogleFonts.poppins(
                           fontSize: 20,
                           fontWeight: FontWeight.w400,
@@ -203,6 +173,58 @@ class _EditSptPageState extends State<EditSptPage> {
                       ),
                       const SizedBox(height: 15),
                       Text(
+                        "Perihal",
+                        style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      Container(
+                        padding: const EdgeInsets.only(left: 15, top: 3),
+                        decoration: BoxDecoration(
+                            color: const Color(0xffEBECF0),
+                            borderRadius: BorderRadius.circular(8)),
+                        child: TextFormField(
+                          onTap: () {},
+                          maxLines: 3,
+                          controller: perihalController,
+                          cursorColor: Colors.black,
+                          style: GoogleFonts.poppins(fontSize: 15),
+                          decoration: InputDecoration(
+                              hintText: "Perihal",
+                              border: InputBorder.none,
+                              hintStyle:
+                                  TextStyle(color: Colors.grey.shade700)),
+                        ),
+                      ),
+                      const SizedBox(height: 15),
+                      Text(
+                        "Dasar",
+                        style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      Container(
+                        padding: const EdgeInsets.only(left: 15, top: 3),
+                        decoration: BoxDecoration(
+                            color: const Color(0xffEBECF0),
+                            borderRadius: BorderRadius.circular(8)),
+                        child: TextFormField(
+                          onTap: () {},
+                          maxLines: 3,
+                          controller: dasarController,
+                          cursorColor: Colors.black,
+                          style: GoogleFonts.poppins(fontSize: 15),
+                          decoration: InputDecoration(
+                              hintText: "Dasar",
+                              border: InputBorder.none,
+                              hintStyle:
+                                  TextStyle(color: Colors.grey.shade700)),
+                        ),
+                      ),
+                      const SizedBox(height: 15),
+                      Text(
                         "Maksud Tujuan",
                         style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
                       ),
@@ -222,33 +244,6 @@ class _EditSptPageState extends State<EditSptPage> {
                           style: GoogleFonts.poppins(fontSize: 15),
                           decoration: InputDecoration(
                               hintText: "Maksud Tujuan",
-                              border: InputBorder.none,
-                              hintStyle:
-                                  TextStyle(color: Colors.grey.shade700)),
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 15,
-                      ),
-                      Text(
-                        "Alat Transportasi",
-                        style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
-                      ),
-                      const SizedBox(
-                        height: 5,
-                      ),
-                      Container(
-                        padding: const EdgeInsets.only(left: 15, top: 3),
-                        decoration: BoxDecoration(
-                            color: const Color(0xffEBECF0),
-                            borderRadius: BorderRadius.circular(8)),
-                        child: TextFormField(
-                          onTap: () {},
-                          controller: alatTransportasiController,
-                          cursorColor: Colors.black,
-                          style: GoogleFonts.poppins(fontSize: 15),
-                          decoration: InputDecoration(
-                              hintText: "Alat Transportasi",
                               border: InputBorder.none,
                               hintStyle:
                                   TextStyle(color: Colors.grey.shade700)),
@@ -340,15 +335,9 @@ class _EditSptPageState extends State<EditSptPage> {
                   width: MediaQuery.of(context).size.width,
                   height: 60,
                   child: ElevatedButton(
-                      child: const Text("Update Data"),
+                      child: const Text("Tambah Data"),
                       onPressed: () {
-                        updateSuratTugas();
-                        Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => SptPage(),
-                            ),
-                            (Route<dynamic> route) => false);
+                        tambahSuratTugas();
                       }),
                 ),
               ),
@@ -368,33 +357,81 @@ class _EditSptPageState extends State<EditSptPage> {
         });
       }
     });
+    print(listNama);
   }
 
-  void updateSuratTugas() async {
-    try {
-      await FirebaseFirestore.instance
-          .collection('spt')
-          .doc(widget.idSuratTugas)
-          .update({
-        'no_spt': noSuratController.text,
-        'nama': selectedValuePegawai,
-        'maksud_tujuan': maksudTujuanController.text,
-        'tempat_tujuan': tempatTujuanController.text,
-        'alat_transportasi': alatTransportasiController.text,
-        'tanggal_berangkat': selectedDate1,
-        'tanggal_kembali': selectedDate2,
-      });
+  void getNoSurat() async {
+    var snap = await FirebaseFirestore.instance
+        .collection('nota_dinas')
+        .orderBy('send_time', descending: true)
+        .limit(1)
+        .get();
 
+    if (snap.docs.isNotEmpty) {
+      String data = snap.docs[0]["no_surat"];
+      data = data.substring(4, 7);
+      int noSurat = int.parse(data);
+      noSurat += 1;
+      data = noSurat.toString().padLeft(3, '0');
+      noSuratController.text = "090/$data-ND/Diskominfo";
+    } else {
+      setState(() {
+        noSuratController.text = "090/001-ND/Diskominfo";
+      });
+    }
+  }
+
+  void tambahSuratTugas() async {
+    if (noSuratController.text.isNotEmpty &&
+        selectedValuePegawai != "" &&
+        tempatTujuanController.text.isNotEmpty &&
+        maksudTujuanController.text.isNotEmpty &&
+        perihalController.text.isNotEmpty &&
+        tanggalBerangkatController.text.isNotEmpty &&
+        tanggalKembaliController.text.isNotEmpty) {
+      try {
+        await FirebaseFirestore.instance.collection('nota_dinas').add({
+          'no_surat': noSuratController.text,
+          'nama': selectedValuePegawai,
+          'maksud_tujuan': maksudTujuanController.text,
+          'tempat_tujuan': tempatTujuanController.text,
+          'perihal': perihalController.text,
+          'dasar': dasarController.text.isEmpty ? "" : dasarController.text,
+          'tanggal_berangkat': selectedDate1,
+          'tanggal_kembali': selectedDate2,
+          'verifikasi': false,
+          'userId': FirebaseAuth.instance.currentUser?.uid,
+          'send_time': DateTime.now(),
+        });
+
+        // ignore: use_build_context_synchronously
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (context) => NotaDinasPage(),
+            ),
+            (Route<dynamic> route) => false);
+
+        Fluttertoast.showToast(
+            msg: "Data Berhasil Disimpan",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 3,
+            backgroundColor: Colors.blue,
+            textColor: Colors.white,
+            fontSize: 16.0);
+      } catch (e) {
+        debugPrint(e.toString());
+      }
+    } else {
       Fluttertoast.showToast(
-          msg: "Data Berhasil Diubah",
+          msg: "Ada field yang belum diisi",
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.CENTER,
           timeInSecForIosWeb: 3,
           backgroundColor: Colors.blue,
           textColor: Colors.white,
           fontSize: 16.0);
-    } catch (e) {
-      debugPrint(e.toString());
     }
   }
 

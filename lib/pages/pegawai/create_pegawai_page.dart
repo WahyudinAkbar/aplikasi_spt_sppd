@@ -1,6 +1,7 @@
 import 'package:aplikasi_kepegawaian/constant.dart';
 import 'package:aplikasi_kepegawaian/pages/homepage/home_page.dart';
 import 'package:aplikasi_kepegawaian/pages/homepage/home_page_user.dart';
+import 'package:aplikasi_kepegawaian/pages/pegawai/pegawai_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -9,20 +10,18 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 
-class ProfilePage extends StatefulWidget {
-  final String email;
-  final String password;
-  const ProfilePage({
+class CreatePegawaiPage extends StatefulWidget {
+  const CreatePegawaiPage({
     super.key,
-    required this.email,
-    required this.password,
   });
 
   @override
-  State<ProfilePage> createState() => _ProfilePageState();
+  State<CreatePegawaiPage> createState() => _CreatePegawaiPageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _CreatePegawaiPageState extends State<CreatePegawaiPage> {
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
   TextEditingController usernameController = TextEditingController();
   TextEditingController namaController = TextEditingController();
   TextEditingController nipController = TextEditingController();
@@ -87,11 +86,59 @@ class _ProfilePageState extends State<ProfilePage> {
                     const SizedBox(height: 15),
                     const Center(
                       child: Text(
-                        "Lengkapi Profil",
+                        "Tambah User",
                         style: TextStyle(
                           fontWeight: FontWeight.normal,
                           fontSize: 26,
                         ),
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    Text(
+                      "Email",
+                      style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    Container(
+                      padding: const EdgeInsets.only(left: 15, top: 3),
+                      decoration: BoxDecoration(
+                          color: const Color(0xffEBECF0),
+                          borderRadius: BorderRadius.circular(8)),
+                      child: TextFormField(
+                        onTap: () {},
+                        controller: emailController,
+                        cursorColor: Colors.black,
+                        style: const TextStyle(fontSize: 17),
+                        decoration: InputDecoration(
+                            hintText: "Email",
+                            border: InputBorder.none,
+                            hintStyle: TextStyle(color: Colors.grey.shade700)),
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    Text(
+                      "Password",
+                      style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    Container(
+                      padding: const EdgeInsets.only(left: 15, top: 3),
+                      decoration: BoxDecoration(
+                          color: const Color(0xffEBECF0),
+                          borderRadius: BorderRadius.circular(8)),
+                      child: TextFormField(
+                        onTap: () {},
+                        controller: passwordController,
+                        cursorColor: Colors.black,
+                        style: const TextStyle(fontSize: 17),
+                        decoration: InputDecoration(
+                            hintText: "Password",
+                            border: InputBorder.none,
+                            hintStyle: TextStyle(color: Colors.grey.shade700)),
                       ),
                     ),
                     const SizedBox(height: 15),
@@ -205,9 +252,10 @@ class _ProfilePageState extends State<ProfilePage> {
                               ))
                           .toList(),
                       validator: (value) {
-                        if (value == null) {
-                          return 'Pilih Pangkat';
+                        if (value != null) {
+                          return value.toString();
                         }
+                        return 'Pilih Pangkat';
                       },
                       onChanged: (value) {
                         selectedValuePangkat = value.toString();
@@ -254,9 +302,10 @@ class _ProfilePageState extends State<ProfilePage> {
                               ))
                           .toList(),
                       validator: (value) {
-                        if (value == null) {
-                          return 'Pilih Bidang';
+                        if (value != null) {
+                          return value.toString();
                         }
+                        return 'Pilih Bidang';
                       },
                       onChanged: (value) {
                         selectedValueBidang = value.toString();
@@ -316,9 +365,9 @@ class _ProfilePageState extends State<ProfilePage> {
                 width: MediaQuery.of(context).size.width,
                 height: 60,
                 child: ElevatedButton(
-                    child: const Text("Simpan"),
+                    child: const Text("Tambah"),
                     onPressed: () {
-                      createPegawai();
+                      checkEmailAndUsername();
                     }),
               ),
             ),
@@ -328,6 +377,42 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  void checkEmailAndUsername() async {
+    var checkEmail = await FirebaseFirestore.instance
+        .collection('users')
+        .where('email', isEqualTo: 'admi@gmail.com')
+        .limit(1)
+        .get();
+    if (checkEmail.docs.length == 1) {
+      Fluttertoast.showToast(
+          msg: "Email Telah Terdaftar",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 2,
+          backgroundColor: Colors.blue,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    } else {
+      var checkUsername = await FirebaseFirestore.instance
+          .collection('users')
+          .where('username', isEqualTo: 'admn')
+          .limit(1)
+          .get();
+      if (checkUsername.docs.length == 1) {
+        Fluttertoast.showToast(
+            msg: "Username Telah Digunakan",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 2,
+            backgroundColor: Colors.blue,
+            textColor: Colors.white,
+            fontSize: 16.0);
+      } else {
+        createPegawai();
+      }
+    }
+  }
+
   void createPegawai() async {
     try {
       final key = encrypt.Key.fromUtf8(secret);
@@ -335,16 +420,16 @@ class _ProfilePageState extends State<ProfilePage> {
 
       final encrypter = encrypt.Encrypter(encrypt.AES(key));
 
-      final encrypted = encrypter.encrypt(widget.password, iv: iv);
+      final encrypted = encrypter.encrypt(passwordController.text, iv: iv);
       await FirebaseAuth.instance
           .createUserWithEmailAndPassword(
-              email: widget.email, password: encrypted.base64)
-          .then((value) {
+              email: emailController.text, password: encrypted.base64)
+          .then((value) async {
         var user = FirebaseAuth.instance.currentUser;
         print(user!.uid);
-        FirebaseFirestore.instance.collection("users").doc(user.uid).set(
+        await FirebaseFirestore.instance.collection("users").doc(user.uid).set(
           {
-            'email': widget.email,
+            'email': emailController.text,
             'username': usernameController.text,
             'password': encrypted.base64,
             'nama': namaController.text,
@@ -355,13 +440,20 @@ class _ProfilePageState extends State<ProfilePage> {
             'roles': 'user'
           },
         );
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const HomePageUser(),
-          ),
-        );
+
+        await FirebaseAuth.instance.signOut();
+        final encryptedAdmin = encrypter.encrypt('wahyu123', iv: iv);
+
+        await FirebaseAuth.instance.signInWithEmailAndPassword(
+            email: 'admin@gmail.com', password: encryptedAdmin.base64);
       });
+      // ignore: use_build_context_synchronously
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const PegawaiPage(),
+        ),
+      );
     } on FirebaseAuthException catch (e) {
       if (e.code == "email-already-in-use") {
         Fluttertoast.showToast(
@@ -376,78 +468,3 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 }
-
-// void getPegawai() async {
-//   await FirebaseFirestore.instance
-//       .collection('users')
-//       .get()
-//       .then((QuerySnapshot querySnapshot) {
-//     for (var document in querySnapshot.docs) {
-//       setState(() {
-//         listNama.add(document['nama']);
-//       });
-//     }
-//   });
-// }
-
-// void getNoSurat() async {
-//   var snap = await FirebaseFirestore.instance
-//       .collection('spt')
-//       .orderBy('sendTime', descending: true)
-//       .limit(1)
-//       .get();
-
-//   String data = snap.docs[0]["no_spt"];
-//   data = data.substring(4, 7);
-//   int noSurat = int.parse(data);
-//   noSurat += 1;
-//   data = noSurat.toString().padLeft(3, '0');
-//   noSuratController.text = "870/$data-KIP/Diskominfo";
-// }
-
-// // void tambahSuratTugas() async {
-// //   try {
-// //     await FirebaseFirestore.instance.collection('spt').add({
-// //       'no_spt': noSuratController.text,
-// //       'nama': selectedValuePegawai,
-// //       'maksud_tujuan': maksudTujuanController.text,
-// //       'tempat_tujuan': tempatTujuanController.text,
-// //       'tanggal': selectedDate,
-// //       'sendTime': DateTime.now(),
-// //     });
-
-// //     Fluttertoast.showToast(
-// //         msg: "Data Berhasil Disimpan",
-// //         toastLength: Toast.LENGTH_SHORT,
-// //         gravity: ToastGravity.CENTER,
-// //         timeInSecForIosWeb: 3,
-// //         backgroundColor: Colors.blue,
-// //         textColor: Colors.white,
-// //         fontSize: 16.0);
-// //   } catch (e) {
-// //     debugPrint(e.toString());
-// //   }
-
-
-// Future<void> selectDate() async {
-//   final DateTime? picked = await showDatePicker(
-//       context: context,
-//       locale: const Locale(
-//         'id',
-//       ),
-//       initialDate: selectedDate,
-//       firstDate: DateTime(2015, 8),
-//       lastDate: DateTime(2101));
-//   if (picked != null && picked != selectedDate) {
-//     setState(() {
-//       selectedDate = picked;
-//       formattedDate = DateFormat(
-//         'EEEE, d MMM yyyy',
-//         'id',
-//       ).format(selectedDate);
-
-//       tanggalController.text = formattedDate.toString();
-//     });
-//   }
-// }
-

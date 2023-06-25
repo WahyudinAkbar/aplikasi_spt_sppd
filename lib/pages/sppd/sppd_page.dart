@@ -1,14 +1,18 @@
+import 'package:aplikasi_kepegawaian/pages/nota_dinas/create_nota_dinas_page.dart';
 import 'package:aplikasi_kepegawaian/pages/sppd/edit_sppd_page.dart';
 import 'package:aplikasi_kepegawaian/pages/sppd/laporan_sppd.dart';
 import 'package:aplikasi_kepegawaian/pages/spt/create_spt_page.dart';
 import 'package:aplikasi_kepegawaian/pages/spt/edit_spt_page.dart';
 import 'package:aplikasi_kepegawaian/pages/spt/report_spt.dart';
+import 'package:aplikasi_kepegawaian/widget/drawer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 
 import 'create_sppd_page.dart';
@@ -21,17 +25,27 @@ class SppdPage extends StatefulWidget {
 }
 
 class _SppdPageState extends State<SppdPage> {
+  Stream? stream;
+
   @override
   void initState() {
     super.initState();
-
+    isAdmin();
     // getData();
   }
 
   @override
   Widget build(BuildContext context) {
+    final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
     return Scaffold(
-      appBar: AppBar(),
+      key: scaffoldKey,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const FaIcon(FontAwesomeIcons.bars),
+          iconSize: 30,
+          onPressed: () => scaffoldKey.currentState!.openDrawer(),
+        ),
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.only(
@@ -51,13 +65,10 @@ class _SppdPageState extends State<SppdPage> {
                 height: 30,
               ),
               StreamBuilder(
-                  stream: FirebaseFirestore.instance
-                      .collection('sppd')
-                      .orderBy('send_time')
-                      .snapshots(),
+                  stream: stream,
                   builder: (context, snapshot) {
                     if (!snapshot.hasData) {
-                      return const Center(child: CircularProgressIndicator());
+                      return const Center(child: Text('Belum ada data'));
                     } else {
                       return SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
@@ -118,7 +129,12 @@ class _SppdPageState extends State<SppdPage> {
                                         MainAxisAlignment.spaceAround,
                                     children: [
                                       ElevatedButton(
-                                        child: Text("Edit"),
+                                        style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.yellow),
+                                        child: const Text(
+                                          "Edit",
+                                          style: TextStyle(color: Colors.black),
+                                        ),
                                         onPressed: () {
                                           Navigator.push(
                                               context,
@@ -161,9 +177,14 @@ class _SppdPageState extends State<SppdPage> {
                                         width: 8,
                                       ),
                                       ElevatedButton(
-                                        child: Text("Hapus"),
+                                        style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.red),
+                                        child: const Text(
+                                          "Hapus",
+                                          style: TextStyle(color: Colors.black),
+                                        ),
                                         onPressed: () {
-                                          deleteData(
+                                          showAlertDialog(context,
                                               snapshot.data!.docs[index].id);
                                         },
                                       ),
@@ -171,10 +192,12 @@ class _SppdPageState extends State<SppdPage> {
                                         width: 8,
                                       ),
                                       ElevatedButton(
-                                        child: Text("Cetak"),
+                                        child: const Text(
+                                          "Cetak",
+                                          style: TextStyle(color: Colors.black),
+                                        ),
                                         onPressed: () {
                                           laporanSppd(
-                                            context,
                                             snapshot.data!.docs[index]
                                                 ['no_sppd'],
                                             snapshot.data!.docs[index]['nama'],
@@ -232,12 +255,12 @@ class _SppdPageState extends State<SppdPage> {
                     width: MediaQuery.of(context).size.width,
                     height: 60,
                     child: ElevatedButton(
-                      child: Text("Tambah Sppd Baru"),
+                      child: const Text("Ajukan Surat Perjalanan Dinas"),
                       onPressed: () {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => CreateSppdPage(),
+                              builder: (context) => const CreateNotaDinasPage(),
                             ));
                       },
                     ),
@@ -248,6 +271,7 @@ class _SppdPageState extends State<SppdPage> {
           ),
         ),
       ),
+      drawer: const MyDrawer(id: '3'),
     );
   }
 
@@ -268,6 +292,67 @@ class _SppdPageState extends State<SppdPage> {
     }
   }
 
+  showAlertDialog(BuildContext context, id) {
+    Widget cancelButton = TextButton(
+      child: const Text("Batal"),
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
+    );
+    Widget continueButton = TextButton(
+      child: const Text(
+        "Hapus",
+        style: TextStyle(color: Colors.redAccent),
+      ),
+      onPressed: () {
+        deleteData(id);
+        Navigator.of(context).pop();
+      },
+    );
+
+    AlertDialog alert = AlertDialog(
+      title: const Text("Hapus Data Ini?"),
+      content: const Text(
+          "Yakin ingin menghapus data ini? Data akan dihapus secara permanen"),
+      actions: [
+        cancelButton,
+        continueButton,
+      ],
+    );
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  void isAdmin() async {
+    var uid = FirebaseAuth.instance.currentUser?.uid;
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .get()
+        .then((value) {
+      if (value.get('roles') == 'admin') {
+        setState(() {
+          stream = FirebaseFirestore.instance
+              .collection('sppd')
+              .orderBy('send_time')
+              .snapshots();
+        });
+      } else {
+        setState(() {
+          stream = FirebaseFirestore.instance
+              .collection('sppd')
+              .where('userId', isEqualTo: uid)
+              .snapshots();
+        });
+      }
+    });
+  }
+
   String hitungHari(tglKembali, tglBerangkat) {
     tglKembali = tglKembali.toDate();
     tglBerangkat = tglBerangkat.toDate();
@@ -284,7 +369,7 @@ class _SppdPageState extends State<SppdPage> {
   }
 }
 
- // final CollectionReference _collectionRef =
+  // final CollectionReference _collectionRef =
   //     FirebaseFirestore.instance.collection('spt');
 
   // List dataSpt = [];
@@ -297,4 +382,3 @@ class _SppdPageState extends State<SppdPage> {
   //   dataSpt = querySnapshot.docs.map((doc) => doc.data()).toList();
   //   print(dataSpt[0]['id_users']);
   // }
-

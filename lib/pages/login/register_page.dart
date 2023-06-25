@@ -1,4 +1,5 @@
 import 'package:aplikasi_kepegawaian/pages/login/login_page.dart';
+import 'package:aplikasi_kepegawaian/pages/login/profile_page.dart';
 import 'package:aplikasi_kepegawaian/pages/login/widget/already_have_account_check.dart';
 import 'package:aplikasi_kepegawaian/pages/login/widget/button.dart';
 import 'package:aplikasi_kepegawaian/pages/login/widget/header.dart';
@@ -94,7 +95,27 @@ class _RegisterPageState extends State<RegisterPage> {
             Button(
               text: "Register",
               onTap: () {
-                signUp();
+                if (passwordController.text != confirmPasswordController.text) {
+                  Fluttertoast.showToast(
+                      msg: "Konfirmasi Password Tidak Sesuai",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                      timeInSecForIosWeb: 2,
+                      backgroundColor: Colors.blue,
+                      textColor: Colors.white,
+                      fontSize: 16.0);
+                } else if (emailController.text.isNotEmpty &&
+                    passwordController.text.isNotEmpty &&
+                    confirmPasswordController.text.isNotEmpty) {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProfilePage(
+                          email: emailController.text,
+                          password: passwordController.text,
+                        ),
+                      ));
+                }
               },
               isActiveButton: isActiveButton,
             ),
@@ -117,33 +138,8 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  void signUp() async {
-    if (passwordController.text == confirmPasswordController.text) {
-      try {
-        await FirebaseAuth.instance.createUserWithEmailAndPassword(
-            email: emailController.text, password: passwordController.text);
-      } on FirebaseAuthException catch (e) {
-        if (e.code == "email-already-in-use") {
-          Fluttertoast.showToast(
-              msg: "Email Telah Terdaftar",
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.BOTTOM,
-              timeInSecForIosWeb: 2,
-              backgroundColor: Colors.blue,
-              textColor: Colors.white,
-              fontSize: 16.0);
-        }
-      }
-    } else {
-      Fluttertoast.showToast(
-          msg: "Konfirmasi Tidak Sesuai Password",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 2,
-          backgroundColor: Colors.blue,
-          textColor: Colors.white,
-          fontSize: 16.0);
-    }
+  void checkPassword() async {
+    if (passwordController.text != confirmPasswordController.text) {}
   }
 
   void checkActiveButton() {

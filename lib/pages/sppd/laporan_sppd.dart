@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:aplikasi_kepegawaian/pages/sppd/laporan_sppd_page.dart';
 import 'package:aplikasi_kepegawaian/pages/spt/report_view_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -8,9 +7,9 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 
 laporanSppd(
-  BuildContext context,
   String noSurat,
   String nama,
   String maksudTujuan,
@@ -64,13 +63,13 @@ laporanSppd(
             pw.Stack(children: [
               pw.Divider(),
               pw.Container(
-                padding: pw.EdgeInsets.only(top: 2),
+                padding: const pw.EdgeInsets.only(top: 2),
                 child: pw.Divider(),
               )
             ]),
             pw.SizedBox(height: 10),
             pw.Padding(
-              padding: pw.EdgeInsets.only(left: 180),
+              padding: const pw.EdgeInsets.only(left: 180),
               child: pw.Table(
                 columnWidths: {
                   0: pw.FlexColumnWidth(0.4),
@@ -600,7 +599,7 @@ laporanSppd(
             pw.Align(
                 alignment: pw.Alignment.centerRight,
                 child: pw.Container(
-                    margin: pw.EdgeInsets.only(right: 80),
+                    margin: const pw.EdgeInsets.only(right: 80),
                     child: pw.Column(
                       children: [
                         pw.Text('Dikeluarkan di Kandangan\n $sendTime',
@@ -708,7 +707,7 @@ laporanSppd(
               pw.Table(border: pw.TableBorder.all(), children: [
                 pw.TableRow(children: [
                   pw.Padding(
-                    padding: pw.EdgeInsets.all(3),
+                    padding: const pw.EdgeInsets.all(3),
                     child: pw.Table(columnWidths: {
                       0: pw.FlexColumnWidth(1),
                       1: pw.FlexColumnWidth(2),
@@ -761,7 +760,7 @@ laporanSppd(
                     ]),
                   ),
                   pw.Padding(
-                    padding: pw.EdgeInsets.all(3),
+                    padding: const pw.EdgeInsets.all(3),
                     child: pw.Table(columnWidths: {
                       0: pw.FlexColumnWidth(1),
                       1: pw.FlexColumnWidth(2),
@@ -811,7 +810,7 @@ laporanSppd(
                 ]),
                 pw.TableRow(children: [
                   pw.Padding(
-                    padding: pw.EdgeInsets.all(3),
+                    padding: const pw.EdgeInsets.all(3),
                     child: pw.Table(columnWidths: {
                       0: pw.FlexColumnWidth(1),
                       1: pw.FlexColumnWidth(2),
@@ -864,7 +863,7 @@ laporanSppd(
                     ]),
                   ),
                   pw.Padding(
-                    padding: pw.EdgeInsets.all(3),
+                    padding: const pw.EdgeInsets.all(3),
                     child: pw.Table(columnWidths: {
                       0: pw.FlexColumnWidth(1),
                       1: pw.FlexColumnWidth(2),
@@ -914,7 +913,7 @@ laporanSppd(
                 ]),
                 pw.TableRow(children: [
                   pw.Padding(
-                    padding: pw.EdgeInsets.all(3),
+                    padding: const pw.EdgeInsets.all(3),
                     child: pw.Table(columnWidths: {
                       0: pw.FlexColumnWidth(1),
                       1: pw.FlexColumnWidth(2),
@@ -967,7 +966,7 @@ laporanSppd(
                     ]),
                   ),
                   pw.Padding(
-                    padding: pw.EdgeInsets.all(3),
+                    padding: const pw.EdgeInsets.all(3),
                     child: pw.Table(columnWidths: {
                       0: pw.FlexColumnWidth(1),
                       1: pw.FlexColumnWidth(2),
@@ -1022,7 +1021,7 @@ laporanSppd(
                   pw.TableRow(
                     children: [
                       pw.Padding(
-                        padding: pw.EdgeInsets.fromLTRB(85, 3, 3, 3),
+                        padding: const pw.EdgeInsets.fromLTRB(85, 3, 3, 3),
                         child: pw.Column(
                           children: [
                             pw.Table(columnWidths: {
@@ -1067,7 +1066,7 @@ laporanSppd(
                             pw.Align(
                               alignment: pw.Alignment.centerRight,
                               child: pw.Container(
-                                margin: pw.EdgeInsets.only(right: 80),
+                                margin: const pw.EdgeInsets.only(right: 80),
                                 child: pw.Column(
                                   children: [
                                     pw.Text('Pengguna Anggaran',
@@ -1096,7 +1095,7 @@ laporanSppd(
                   ),
                   pw.TableRow(children: [
                     pw.Padding(
-                      padding: pw.EdgeInsets.all(3),
+                      padding: const pw.EdgeInsets.all(3),
                       child: pw.Column(
                         crossAxisAlignment: pw.CrossAxisAlignment.start,
                         children: [
@@ -1111,7 +1110,7 @@ laporanSppd(
                   ]),
                   pw.TableRow(children: [
                     pw.Padding(
-                      padding: pw.EdgeInsets.all(3),
+                      padding: const pw.EdgeInsets.all(3),
                       child: pw.Column(
                         crossAxisAlignment: pw.CrossAxisAlignment.start,
                         children: [
@@ -1140,10 +1139,14 @@ laporanSppd(
   final File file = File(path);
   await file.writeAsBytes(await pdf.save());
 
+  await Printing.layoutPdf(
+    onLayout: (format) async => pdf.save(),
+  );
+
   // ignore: use_build_context_synchronously
-  Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => LaporanSppdPage(path: path),
-      ));
+  // Navigator.push(
+  //     context,
+  //     MaterialPageRoute(
+  //       builder: (context) => LaporanSppdPage(path: path),
+  //     ));
 }

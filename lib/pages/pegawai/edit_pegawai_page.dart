@@ -12,6 +12,8 @@ class EditPegawaiPage extends StatefulWidget {
   final String nip;
   final String pangkat;
   final String jabatan;
+  final String bidang;
+  final String title;
 
   const EditPegawaiPage({
     super.key,
@@ -20,6 +22,8 @@ class EditPegawaiPage extends StatefulWidget {
     required this.nip,
     required this.pangkat,
     required this.jabatan,
+    required this.bidang,
+    required this.title,
   });
 
   @override
@@ -31,38 +35,52 @@ class _EditPegawaiPageState extends State<EditPegawaiPage> {
   TextEditingController namaController = TextEditingController();
   TextEditingController nipController = TextEditingController();
   TextEditingController jabatanController = TextEditingController();
-
   String? selectedValuePangkat;
+  String? selectedValueBidang;
 
-  List pangkat = [
-    "Juru Muda / I a",
-    "Juru Muda Tingkat / I b"
-        "Juru / I c",
-    "Juru Tingkat I / I d",
-    "Pengatur Muda / II a",
-    "Pengatur Muda Tingkat I / II b",
-    "Pengatur / II c",
-    "Pengatur Tingkat I / II d",
-    "Penata Muda / III a",
-    "Penata Muda Tingkat I / III b",
-    "Penata / III c",
-    "Penata Tingkat I / III d",
-    "Pembina / IV a",
-    "Pembina Tingkat I / IV b",
-    "Pembina Muda / IV c",
-    "Pembina Madya / IV d",
-    "Pembina Utama / IV e",
-  ];
+  List golongan = [];
+  List bidang = [];
+
+  void getGolongan() async {
+    await FirebaseFirestore.instance
+        .collection('golongan')
+        .orderBy('nama_golongan', descending: true)
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+      for (var document in querySnapshot.docs) {
+        setState(() {
+          golongan.add(document['nama_golongan']);
+        });
+      }
+    });
+  }
+
+  void getBidang() async {
+    await FirebaseFirestore.instance
+        .collection('bidang')
+        .orderBy('nama_bidang', descending: true)
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+      for (var document in querySnapshot.docs) {
+        setState(() {
+          bidang.add(document['nama_bidang']);
+        });
+      }
+    });
+  }
 
   @override
   void initState() {
     super.initState();
 
+    getGolongan();
+    getBidang();
     usernameController.text = widget.username;
     namaController.text = widget.nama;
     nipController.text = widget.nip;
     jabatanController.text = widget.jabatan;
     selectedValuePangkat = widget.pangkat;
+    selectedValueBidang = widget.bidang;
   }
 
   @override
@@ -81,7 +99,7 @@ class _EditPegawaiPageState extends State<EditPegawaiPage> {
                   height: 25,
                 ),
                 Text(
-                  "Edit Pegawai",
+                  widget.title,
                   style: GoogleFonts.poppins(
                     fontSize: 20,
                     fontWeight: FontWeight.w400,
@@ -188,7 +206,7 @@ class _EditPegawaiPageState extends State<EditPegawaiPage> {
                   dropdownDecoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(15),
                   ),
-                  items: pangkat
+                  items: golongan
                       .map((item) => DropdownMenuItem<String>(
                             value: item,
                             child: Text(
@@ -209,6 +227,55 @@ class _EditPegawaiPageState extends State<EditPegawaiPage> {
                   },
                   onSaved: (value) {
                     selectedValuePangkat = value.toString();
+                  },
+                ),
+                const SizedBox(height: 15),
+                Text(
+                  "Bidang",
+                  style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                ),
+                DropdownButtonFormField2(
+                  value: selectedValueBidang,
+                  buttonDecoration: BoxDecoration(
+                    color: const Color(0xffEBECF0),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  decoration: const InputDecoration(
+                      border: InputBorder.none, isDense: true),
+                  hint: Text(
+                    'Pilih Bidang',
+                    style: GoogleFonts.poppins(fontSize: 15),
+                  ),
+                  icon: const Icon(
+                    Icons.arrow_drop_down,
+                    color: Colors.black45,
+                  ),
+                  iconSize: 30,
+                  buttonHeight: 50,
+                  dropdownDecoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  items: bidang
+                      .map((item) => DropdownMenuItem<String>(
+                            value: item,
+                            child: Text(
+                              item,
+                              style: GoogleFonts.poppins(
+                                fontSize: 15,
+                              ),
+                            ),
+                          ))
+                      .toList(),
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Pilih Bidang';
+                    }
+                  },
+                  onChanged: (value) {
+                    selectedValueBidang = value.toString();
+                  },
+                  onSaved: (value) {
+                    selectedValueBidang = value.toString();
                   },
                 ),
                 const SizedBox(
@@ -253,7 +320,7 @@ class _EditPegawaiPageState extends State<EditPegawaiPage> {
                           (Route<dynamic> route) => false);
                     },
                     child: Text(
-                      'Update Surat Tugas',
+                      'Edit Profile',
                       style: GoogleFonts.poppins(fontSize: 16),
                     ),
                   ),

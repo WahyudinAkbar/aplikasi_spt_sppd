@@ -1,3 +1,5 @@
+import 'package:aplikasi_kepegawaian/pages/nota_dinas/nota_dinas_page%20copy.dart';
+import 'package:aplikasi_kepegawaian/pages/nota_dinas/nota_dinas_page.dart';
 import 'package:aplikasi_kepegawaian/pages/spt/spt_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
@@ -6,17 +8,18 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
-class EditSptPage extends StatefulWidget {
+class EditNotaDinasPage extends StatefulWidget {
   final String idSuratTugas;
   final String noSurat;
   final String pegawai;
   final String tempatTujuan;
   final String maksudTujuan;
-  final String alatTransportasi;
+  final String perihal;
+  final String dasar;
   final DateTime tanggalBerangkat;
   final DateTime tanggalKembali;
 
-  const EditSptPage({
+  const EditNotaDinasPage({
     super.key,
     required this.idSuratTugas,
     required this.noSurat,
@@ -25,19 +28,20 @@ class EditSptPage extends StatefulWidget {
     required this.maksudTujuan,
     required this.tanggalBerangkat,
     required this.tanggalKembali,
-    required this.alatTransportasi,
+    required this.perihal,
+    required this.dasar,
   });
 
   @override
-  State<EditSptPage> createState() => _EditSptPageState();
+  State<EditNotaDinasPage> createState() => _EditNotaDinasPageState();
 }
 
-class _EditSptPageState extends State<EditSptPage> {
+class _EditNotaDinasPageState extends State<EditNotaDinasPage> {
   TextEditingController noSuratController = TextEditingController();
   TextEditingController tempatTujuanController = TextEditingController();
   TextEditingController maksudTujuanController = TextEditingController();
-
-  TextEditingController alatTransportasiController = TextEditingController();
+  TextEditingController perihalController = TextEditingController();
+  TextEditingController dasarController = TextEditingController();
   TextEditingController tanggalBerangkatController = TextEditingController();
   TextEditingController tanggalKembaliController = TextEditingController();
 
@@ -56,8 +60,8 @@ class _EditSptPageState extends State<EditSptPage> {
     selectedValuePegawai = widget.pegawai;
     tempatTujuanController.text = widget.tempatTujuan;
     maksudTujuanController.text = widget.maksudTujuan;
-
-    alatTransportasiController.text = widget.alatTransportasi;
+    perihalController.text = widget.perihal;
+    dasarController.text = widget.dasar;
     selectedDate1 = widget.tanggalBerangkat;
     tanggalBerangkatController.text = DateFormat(
       'EEEE, d MMMM yyyy',
@@ -203,6 +207,58 @@ class _EditSptPageState extends State<EditSptPage> {
                       ),
                       const SizedBox(height: 15),
                       Text(
+                        "Perihal",
+                        style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      Container(
+                        padding: const EdgeInsets.only(left: 15, top: 3),
+                        decoration: BoxDecoration(
+                            color: const Color(0xffEBECF0),
+                            borderRadius: BorderRadius.circular(8)),
+                        child: TextFormField(
+                          onTap: () {},
+                          maxLines: 3,
+                          controller: perihalController,
+                          cursorColor: Colors.black,
+                          style: GoogleFonts.poppins(fontSize: 15),
+                          decoration: InputDecoration(
+                              hintText: "Perihal",
+                              border: InputBorder.none,
+                              hintStyle:
+                                  TextStyle(color: Colors.grey.shade700)),
+                        ),
+                      ),
+                      const SizedBox(height: 15),
+                      Text(
+                        "Dasar",
+                        style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      Container(
+                        padding: const EdgeInsets.only(left: 15, top: 3),
+                        decoration: BoxDecoration(
+                            color: const Color(0xffEBECF0),
+                            borderRadius: BorderRadius.circular(8)),
+                        child: TextFormField(
+                          onTap: () {},
+                          maxLines: 3,
+                          controller: dasarController,
+                          cursorColor: Colors.black,
+                          style: GoogleFonts.poppins(fontSize: 15),
+                          decoration: InputDecoration(
+                              hintText: "Dasar",
+                              border: InputBorder.none,
+                              hintStyle:
+                                  TextStyle(color: Colors.grey.shade700)),
+                        ),
+                      ),
+                      const SizedBox(height: 15),
+                      Text(
                         "Maksud Tujuan",
                         style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
                       ),
@@ -222,33 +278,6 @@ class _EditSptPageState extends State<EditSptPage> {
                           style: GoogleFonts.poppins(fontSize: 15),
                           decoration: InputDecoration(
                               hintText: "Maksud Tujuan",
-                              border: InputBorder.none,
-                              hintStyle:
-                                  TextStyle(color: Colors.grey.shade700)),
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 15,
-                      ),
-                      Text(
-                        "Alat Transportasi",
-                        style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
-                      ),
-                      const SizedBox(
-                        height: 5,
-                      ),
-                      Container(
-                        padding: const EdgeInsets.only(left: 15, top: 3),
-                        decoration: BoxDecoration(
-                            color: const Color(0xffEBECF0),
-                            borderRadius: BorderRadius.circular(8)),
-                        child: TextFormField(
-                          onTap: () {},
-                          controller: alatTransportasiController,
-                          cursorColor: Colors.black,
-                          style: GoogleFonts.poppins(fontSize: 15),
-                          decoration: InputDecoration(
-                              hintText: "Alat Transportasi",
                               border: InputBorder.none,
                               hintStyle:
                                   TextStyle(color: Colors.grey.shade700)),
@@ -346,7 +375,7 @@ class _EditSptPageState extends State<EditSptPage> {
                         Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => SptPage(),
+                              builder: (context) => NotaDinasPage(),
                             ),
                             (Route<dynamic> route) => false);
                       }),
@@ -373,14 +402,15 @@ class _EditSptPageState extends State<EditSptPage> {
   void updateSuratTugas() async {
     try {
       await FirebaseFirestore.instance
-          .collection('spt')
+          .collection('nota_dinas')
           .doc(widget.idSuratTugas)
           .update({
-        'no_spt': noSuratController.text,
+        'no_surat': noSuratController.text,
         'nama': selectedValuePegawai,
         'maksud_tujuan': maksudTujuanController.text,
         'tempat_tujuan': tempatTujuanController.text,
-        'alat_transportasi': alatTransportasiController.text,
+        'perihal': perihalController.text,
+        'dasar': dasarController.text,
         'tanggal_berangkat': selectedDate1,
         'tanggal_kembali': selectedDate2,
       });

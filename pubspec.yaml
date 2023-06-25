@@ -30,10 +30,13 @@ environment:
 dependencies:
   cloud_firestore: ^4.3.1
   cupertino_icons: ^1.0.2
+  dio: ^5.0.1
   dropdown_button2: ^1.9.1
   email_validator: ^2.1.17
-  firebase_auth: ^4.2.5
-  firebase_core: ^2.4.1
+  encrypt: ^5.0.1
+  firebase_auth: ^4.2.9
+  firebase_core: ^2.7.0
+  firebase_ui_firestore: ^1.2.8
   flutter:
     sdk: flutter
   flutter_localizations:
@@ -41,11 +44,15 @@ dependencies:
   flutter_pdfview: ^1.2.5
   fluttertoast: ^8.1.1
   font_awesome_flutter: ^10.3.0
-  google_fonts: ^3.0.1
-  intl: ^0.17.0
+  google_fonts: ^4.0.3
+  intl: ^0.18.0
+  open_file_plus: ^3.4.0
   path_provider: ^2.0.11
   pdf: ^3.8.4
-  printing: ^5.9.3
+  printing: ^5.10.1
+
+dependency_overrides:
+  intl: ^0.17.0-nullsafety.2
 
 dev_dependencies:
   flutter_lints: ^2.0.0
@@ -63,6 +70,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/
+    - assets/OpenSans-Regular.ttf
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
   # For details regarding adding assets from package dependencies, see
