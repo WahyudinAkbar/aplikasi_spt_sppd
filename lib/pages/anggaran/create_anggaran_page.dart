@@ -1,41 +1,35 @@
-import 'package:aplikasi_kepegawaian/pages/spt/spt_page.dart';
+import 'package:aplikasi_kepegawaian/pages/anggaran/anggaran_page.dart';
+import 'package:aplikasi_kepegawaian/pages/nota_dinas/nota_dinas_page.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 
-class CreateSptPage extends StatefulWidget {
-  const CreateSptPage({super.key});
+class CreateAnggaranPage extends StatefulWidget {
+  const CreateAnggaranPage({super.key});
 
   @override
-  State<CreateSptPage> createState() => _CreateSptPageState();
+  State<CreateAnggaranPage> createState() => _CreateAnggaranPageState();
 }
 
-class _CreateSptPageState extends State<CreateSptPage> {
-  TextEditingController noSuratController = TextEditingController();
-  TextEditingController tempatTujuanController = TextEditingController();
-  TextEditingController maksudTujuanController = TextEditingController();
-  TextEditingController alatTransportasiController = TextEditingController();
-  TextEditingController tanggalBerangkatController = TextEditingController();
-  TextEditingController tanggalKembaliController = TextEditingController();
+class _CreateAnggaranPageState extends State<CreateAnggaranPage> {
+  TextEditingController uangHarianController = TextEditingController();
+  TextEditingController biayaTransportasiController = TextEditingController();
+  TextEditingController biayaPenginapanController = TextEditingController();
+  TextEditingController totalController = TextEditingController();
 
-  DateTime selectedDate1 = DateTime.now();
-  DateTime selectedDate2 = DateTime.now();
-  String? formattedDate;
-  String? selectedValuePegawai;
-
-  List<String> listNama = [];
+  List<String> listSppd = [];
+  String? selectedValueSppd;
+  List i = [for (var j = 0; j < 3; j++) 0];
 
   @override
   void initState() {
     super.initState();
-
-    getPegawai();
-    getNoSurat();
+    getSppd();
+    print(i);
   }
 
   @override
@@ -57,47 +51,20 @@ class _CreateSptPageState extends State<CreateSptPage> {
                         height: 15,
                       ),
                       Text(
-                        "Tambah Surat Perintah Tugas",
+                        "Tambah Anggaran Perjalanan Dinas",
                         style: GoogleFonts.poppins(
                           fontSize: 20,
                           fontWeight: FontWeight.w400,
                           color: Colors.black,
                         ),
                       ),
-                      const SizedBox(
-                        height: 15,
-                      ),
-                      Text(
-                        "No Surat",
-                        style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
-                      ),
-                      const SizedBox(
-                        height: 5,
-                      ),
-                      Container(
-                        padding: const EdgeInsets.only(left: 15, top: 3),
-                        decoration: BoxDecoration(
-                            color: const Color(0xffEBECF0),
-                            borderRadius: BorderRadius.circular(8)),
-                        child: TextFormField(
-                          onTap: () {},
-                          controller: noSuratController,
-                          cursorColor: Colors.black,
-                          style: const TextStyle(fontSize: 17),
-                          decoration: InputDecoration(
-                              hintText: "No Surat",
-                              border: InputBorder.none,
-                              hintStyle:
-                                  TextStyle(color: Colors.grey.shade700)),
-                        ),
-                      ),
                       const SizedBox(height: 15),
                       Text(
-                        "Pegawai",
+                        "No Sppd",
                         style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
                       ),
                       DropdownButtonFormField2(
-                        value: selectedValuePegawai,
+                        value: selectedValueSppd,
                         buttonDecoration: BoxDecoration(
                           color: const Color(0xffEBECF0),
                           borderRadius: BorderRadius.circular(8),
@@ -105,7 +72,7 @@ class _CreateSptPageState extends State<CreateSptPage> {
                         decoration: const InputDecoration(
                             border: InputBorder.none, isDense: true),
                         hint: Text(
-                          'Pilih Pegawai',
+                          'Pilih Sppd',
                           style: GoogleFonts.poppins(fontSize: 15),
                         ),
                         icon: const Icon(
@@ -117,7 +84,7 @@ class _CreateSptPageState extends State<CreateSptPage> {
                         dropdownDecoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15),
                         ),
-                        items: listNama
+                        items: listSppd
                             .map((item) => DropdownMenuItem<String>(
                                   value: item,
                                   child: Text(
@@ -130,21 +97,20 @@ class _CreateSptPageState extends State<CreateSptPage> {
                             .toList(),
                         validator: (value) {
                           if (value == null) {
-                            return 'Pilih Pegawai';
+                            return 'Pilih Sppd';
                           }
+                          return value.toString();
                         },
                         onChanged: (value) {
-                          selectedValuePegawai = value.toString();
+                          selectedValueSppd = value.toString();
                         },
                         onSaved: (value) {
-                          selectedValuePegawai = value.toString();
+                          selectedValueSppd = value.toString();
                         },
                       ),
-                      const SizedBox(
-                        height: 15,
-                      ),
+                      const SizedBox(height: 15),
                       Text(
-                        "Tempat Tujuan",
+                        "Uang Harian",
                         style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(
@@ -157,11 +123,25 @@ class _CreateSptPageState extends State<CreateSptPage> {
                             borderRadius: BorderRadius.circular(8)),
                         child: TextFormField(
                           onTap: () {},
-                          controller: tempatTujuanController,
+                          onChanged: (value) {
+                            setState(() {
+                              if (value.isEmpty) {
+                                i[0] = 0;
+                              } else {
+                                i[0] = int.parse(value);
+                              }
+                              countTotal();
+                            });
+                          },
+                          controller: uangHarianController,
                           cursorColor: Colors.black,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly
+                          ],
+                          keyboardType: TextInputType.number,
                           style: GoogleFonts.poppins(fontSize: 15),
                           decoration: InputDecoration(
-                              hintText: "Tempat Tujuan",
+                              hintText: "Uang Harian",
                               border: InputBorder.none,
                               hintStyle:
                                   TextStyle(color: Colors.grey.shade700)),
@@ -169,7 +149,7 @@ class _CreateSptPageState extends State<CreateSptPage> {
                       ),
                       const SizedBox(height: 15),
                       Text(
-                        "Maksud Tujuan",
+                        "Biaya Transportasi",
                         style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(
@@ -182,22 +162,31 @@ class _CreateSptPageState extends State<CreateSptPage> {
                             borderRadius: BorderRadius.circular(8)),
                         child: TextFormField(
                           onTap: () {},
-                          maxLines: 5,
-                          controller: maksudTujuanController,
+                          onChanged: (value) {
+                            if (value.isEmpty) {
+                              i[1] = 0;
+                            } else {
+                              i[1] = int.parse(value);
+                            }
+                            countTotal();
+                          },
+                          controller: biayaTransportasiController,
                           cursorColor: Colors.black,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly
+                          ],
+                          keyboardType: TextInputType.number,
                           style: GoogleFonts.poppins(fontSize: 15),
                           decoration: InputDecoration(
-                              hintText: "Maksud Tujuan",
+                              hintText: "Biaya Transportasi",
                               border: InputBorder.none,
                               hintStyle:
                                   TextStyle(color: Colors.grey.shade700)),
                         ),
                       ),
-                      const SizedBox(
-                        height: 15,
-                      ),
+                      const SizedBox(height: 15),
                       Text(
-                        "Alat Transportasi",
+                        "Biaya Penginapan",
                         style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(
@@ -210,21 +199,31 @@ class _CreateSptPageState extends State<CreateSptPage> {
                             borderRadius: BorderRadius.circular(8)),
                         child: TextFormField(
                           onTap: () {},
-                          controller: alatTransportasiController,
+                          onChanged: (value) {
+                            if (value.isEmpty) {
+                              i[2] = 0;
+                            } else {
+                              i[2] = int.parse(value);
+                            }
+                            countTotal();
+                          },
+                          controller: biayaPenginapanController,
                           cursorColor: Colors.black,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly
+                          ],
+                          keyboardType: TextInputType.number,
                           style: GoogleFonts.poppins(fontSize: 15),
                           decoration: InputDecoration(
-                              hintText: "Alat Transportasi",
+                              hintText: "Biaya Penginapan",
                               border: InputBorder.none,
                               hintStyle:
                                   TextStyle(color: Colors.grey.shade700)),
                         ),
                       ),
-                      const SizedBox(
-                        height: 15,
-                      ),
+                      const SizedBox(height: 15),
                       Text(
-                        "Tanggal Berangkat",
+                        "Total",
                         style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(
@@ -236,45 +235,13 @@ class _CreateSptPageState extends State<CreateSptPage> {
                             color: const Color(0xffEBECF0),
                             borderRadius: BorderRadius.circular(8)),
                         child: TextFormField(
-                          controller: tanggalBerangkatController,
-                          onTap: () {
-                            selectDate(tanggalBerangkatController, true);
-                          },
+                          onTap: () {},
                           readOnly: true,
+                          controller: totalController,
                           cursorColor: Colors.black,
                           style: GoogleFonts.poppins(fontSize: 15),
                           decoration: InputDecoration(
-                              hintText: "Tanggal berangkat",
-                              border: InputBorder.none,
-                              hintStyle:
-                                  TextStyle(color: Colors.grey.shade700)),
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 15,
-                      ),
-                      Text(
-                        "Tanggal Kembali",
-                        style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
-                      ),
-                      const SizedBox(
-                        height: 5,
-                      ),
-                      Container(
-                        padding: const EdgeInsets.only(left: 15, top: 3),
-                        decoration: BoxDecoration(
-                            color: const Color(0xffEBECF0),
-                            borderRadius: BorderRadius.circular(8)),
-                        child: TextFormField(
-                          controller: tanggalKembaliController,
-                          onTap: () {
-                            selectDate(tanggalKembaliController, false);
-                          },
-                          readOnly: true,
-                          cursorColor: Colors.black,
-                          style: GoogleFonts.poppins(fontSize: 15),
-                          decoration: InputDecoration(
-                              hintText: "Tanggal Kembali",
+                              hintText: "0",
                               border: InputBorder.none,
                               hintStyle:
                                   TextStyle(color: Colors.grey.shade700)),
@@ -308,7 +275,7 @@ class _CreateSptPageState extends State<CreateSptPage> {
                   child: ElevatedButton(
                       child: const Text("Tambah Data"),
                       onPressed: () {
-                        tambahSuratTugas();
+                        tambahAnggaran();
                       }),
                 ),
               ),
@@ -317,59 +284,65 @@ class _CreateSptPageState extends State<CreateSptPage> {
         ));
   }
 
-  void getPegawai() async {
+  void countTotal() {
+    setState(() {
+      int total = i[0] + i[1] + i[2];
+
+      totalController.text = total.toString();
+    });
+  }
+
+  void getSppd() async {
     await FirebaseFirestore.instance
-        .collection('users')
+        .collection('sppd')
+        .orderBy('no_sppd', descending: false)
         .get()
         .then((QuerySnapshot querySnapshot) {
       for (var document in querySnapshot.docs) {
         setState(() {
-          listNama.add(document['nama']);
+          listSppd.add(document['no_sppd']);
         });
       }
     });
-    print(listNama);
+    checkSppd();
   }
 
-  void getNoSurat() async {
-    var snap = await FirebaseFirestore.instance
-        .collection('spt')
-        .orderBy('sendTime', descending: true)
-        .limit(1)
-        .get();
-
-    String data = snap.docs[0]["no_spt"];
-    data = data.substring(4, 7);
-    int noSurat = int.parse(data);
-    noSurat += 1;
-    data = noSurat.toString().padLeft(3, '0');
-    noSuratController.text = "870/$data-KIP/Diskominfo";
+  void checkSppd() async {
+    await FirebaseFirestore.instance
+        .collection('anggaran')
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+      for (var document in querySnapshot.docs) {
+        setState(() {
+          for (var i = 0; i < listSppd.length; i++) {
+            if (document['no_sppd'] == listSppd[i]) {
+              listSppd.remove(document['no_sppd']);
+            }
+          }
+        });
+      }
+    });
   }
 
-  void tambahSuratTugas() async {
-    if (noSuratController.text.isNotEmpty &&
-        selectedValuePegawai != "" &&
-        tempatTujuanController.text.isNotEmpty &&
-        maksudTujuanController.text.isNotEmpty &&
-        tanggalBerangkatController.text.isNotEmpty &&
-        tanggalKembaliController.text.isNotEmpty) {
+  void tambahAnggaran() async {
+    if (selectedValueSppd != "" &&
+        uangHarianController.text.isNotEmpty &&
+        biayaPenginapanController.text.isNotEmpty &&
+        biayaTransportasiController.text.isNotEmpty) {
       try {
-        await FirebaseFirestore.instance.collection('spt').add({
-          'no_spt': noSuratController.text,
-          'nama': selectedValuePegawai,
-          'maksud_tujuan': maksudTujuanController.text,
-          'tempat_tujuan': tempatTujuanController.text,
-          'alat_transportasi': alatTransportasiController.text,
-          'tanggal_berangkat': selectedDate1,
-          'tanggal_kembali': selectedDate2,
-          'sendTime': DateTime.now(),
+        await FirebaseFirestore.instance.collection('anggaran').add({
+          'no_sppd': selectedValueSppd,
+          'uang_harian': int.parse(uangHarianController.text),
+          'biaya_transportasi': int.parse(biayaTransportasiController.text),
+          'biaya_penginapan': int.parse(biayaPenginapanController.text),
+          'total': int.parse(totalController.text),
         });
 
         // ignore: use_build_context_synchronously
         Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
-              builder: (context) => SptPage(),
+              builder: (context) => const AnggaranPage(),
             ),
             (Route<dynamic> route) => false);
 
@@ -393,39 +366,6 @@ class _CreateSptPageState extends State<CreateSptPage> {
           backgroundColor: Colors.blue,
           textColor: Colors.white,
           fontSize: 16.0);
-    }
-  }
-
-  Future<void> selectDate(
-      TextEditingController controller, bool isBerangkat) async {
-    final DateTime? picked = await showDatePicker(
-        context: context,
-        locale: const Locale(
-          'id',
-        ),
-        initialDate: isBerangkat ? selectedDate1 : selectedDate2,
-        firstDate: DateTime(2015, 8),
-        lastDate: DateTime(2101));
-
-    void formatDate(selectedDate) {
-      formattedDate = DateFormat(
-        'EEEE, d MMM yyyy',
-        'id',
-      ).format(selectedDate);
-    }
-
-    if (picked != null) {
-      setState(() {
-        if (isBerangkat) {
-          selectedDate1 = picked;
-          formatDate(selectedDate1);
-        } else {
-          selectedDate2 = picked;
-          formatDate(selectedDate2);
-        }
-
-        controller.text = formattedDate.toString();
-      });
     }
   }
 }

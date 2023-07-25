@@ -1,9 +1,5 @@
-import 'package:aplikasi_kepegawaian/pages/login/login_page.dart';
-import 'package:aplikasi_kepegawaian/pages/nota_dinas/nota_dinas_page%20copy.dart';
 import 'package:aplikasi_kepegawaian/pages/nota_dinas/nota_dinas_page.dart';
 import 'package:aplikasi_kepegawaian/pages/pegawai/edit_pegawai_page.dart';
-import 'package:aplikasi_kepegawaian/pages/pegawai/pegawai_page.dart';
-import 'package:aplikasi_kepegawaian/pages/sppd/laporan_rekap_sppd.dart';
 import 'package:aplikasi_kepegawaian/pages/sppd/sppd_page.dart';
 import 'package:aplikasi_kepegawaian/pages/spt/spt_page.dart';
 import 'package:aplikasi_kepegawaian/widget/drawer.dart';
@@ -259,6 +255,7 @@ class _HomePageUserState extends State<HomePageUser> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => EditPegawaiPage(
+                                    idPegawai: uid!,
                                     title: "Edit Profile",
                                     username: value.get('username'),
                                     nama: value.get('nama'),

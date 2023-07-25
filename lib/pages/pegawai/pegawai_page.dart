@@ -5,6 +5,7 @@ import 'package:aplikasi_kepegawaian/pages/pegawai/edit_pegawai_page.dart';
 import 'package:aplikasi_kepegawaian/pages/pegawai/report_pegawai.dart';
 import 'package:aplikasi_kepegawaian/widget/drawer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_ui_firestore/firebase_ui_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -91,7 +92,7 @@ class _PegawaiPageState extends State<PegawaiPage> {
                 builder: (context, snapshot, _) {
                   return PaginatedDataTable(
                     rowsPerPage: _rowsPerPage,
-                    columns: const <DataColumn>[
+                    columns: <DataColumn>[
                       DataColumn(
                         label: Text('No'),
                       ),
@@ -109,6 +110,20 @@ class _PegawaiPageState extends State<PegawaiPage> {
                       ),
                       DataColumn(
                         label: Text('Bidang'),
+                      ),
+                      DataColumn(
+                        label: StreamBuilder(
+                          stream: FirebaseFirestore.instance
+                              .collection("users")
+                              .doc(FirebaseAuth.instance.currentUser?.uid)
+                              .snapshots(),
+                          builder: (context, snapshot) {
+                            if (snapshot.data?.get('roles') != 'admin') {
+                              return const SizedBox.shrink();
+                            }
+                            return Text('Roles');
+                          },
+                        ),
                       ),
                       DataColumn(
                         label: Text('Action'),
@@ -152,7 +167,7 @@ class _PegawaiPageState extends State<PegawaiPage> {
           ),
         ),
       ),
-      drawer: const MyDrawer(id: '5'),
+      drawer: const MyDrawer(id: '9'),
     );
   }
 }
@@ -200,6 +215,18 @@ class MyData extends DataTableSource {
       DataCell(Text(data[index].data()["golongan"])),
       DataCell(Text(data[index].data()["jabatan"])),
       DataCell(Text(data[index].data()["bidang"])),
+      DataCell(StreamBuilder(
+        stream: FirebaseFirestore.instance
+            .collection("users")
+            .doc(FirebaseAuth.instance.currentUser?.uid)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.data?.get('roles') != 'admin') {
+            return const SizedBox.shrink();
+          }
+          return Text(data[index].data()["roles"]);
+        },
+      )),
       DataCell(Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
@@ -210,19 +237,6 @@ class MyData extends DataTableSource {
               style: TextStyle(color: Colors.black),
             ),
             onPressed: () {
-              // Navigator.push(
-              //     context,
-              //     MaterialPageRoute(
-              //       builder: (context) => EditPegawaiPage(
-              //         title: "Edit Pegawai",
-              //         username: data[index].data()["username"],
-              //         nama: data[index].data()["nama"],
-              //         nip: data[index].data()["nip"],
-              //         pangkat: data[index].data()["golongan"],
-              //         jabatan: data[index].data()["jabatan"],
-              //         bidang: data[index].data()["bidang"],
-              //       ),
-              //     ));
               Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -234,6 +248,7 @@ class MyData extends DataTableSource {
                         pangkat: data[index].data()["golongan"],
                         jabatan: data[index].data()["jabatan"],
                         bidang: data[index].data()["bidang"],
+                        roles: data[index].data()["roles"],
                         email: data[index].data()["email"],
                         password: data[index].data()["password"]),
                   ));

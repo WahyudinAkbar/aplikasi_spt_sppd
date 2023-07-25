@@ -2,32 +2,41 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
-laporanNotaDinas(
-  String noSurat,
-  String nama,
-  String perihal,
-  String dasar,
-  String maksudTujuan,
-  String tempatTujuan,
-  String alatTransportasi,
-  String tanggalBerangkat,
-  String tanggalKembali,
-  String hari,
-  String tanggalBuat,
+laporanKegiatan(
+  String noSppd,
+  List kegiatan,
+  List tanggal,
+  List keterangan,
 ) async {
   final pdf = pw.Document();
   final image = pw.MemoryImage(
     (await rootBundle.load('assets/logo_report_sppd.png')).buffer.asUint8List(),
   );
 
-  final getUser = await FirebaseFirestore.instance
-      .collection('users')
-      .where("nama", isEqualTo: nama)
+  List formatTanggal = [];
+
+  String formatDate(tanggal) {
+    return DateFormat(
+      'd MMMM yyyy',
+      'id',
+    ).format(
+      tanggal.toDate(),
+    );
+  }
+
+  for (var i = 0; i < tanggal.length; i++) {
+    formatTanggal.add(formatDate(tanggal[i]));
+  }
+
+  final data = await FirebaseFirestore.instance
+      .collection('sppd')
+      .where("no_sppd", isEqualTo: noSppd)
       .get();
 
   pdf.addPage(pw.Page(
@@ -69,7 +78,7 @@ laporanNotaDinas(
           pw.SizedBox(height: 8),
           pw.Center(
             child: pw.Text(
-              'Nota Permintaan Perjalanan Dinas',
+              'Kegiatan Perjalanan Dinas',
               style: pw.TextStyle(
                   fontSize: 16,
                   fontWeight: pw.FontWeight.bold,
@@ -78,7 +87,7 @@ laporanNotaDinas(
           ),
           pw.SizedBox(height: 5),
           pw.Table(columnWidths: {
-            0: const pw.FlexColumnWidth(1),
+            0: const pw.FlexColumnWidth(1.4),
             1: const pw.FlexColumnWidth(0.3),
             2: const pw.FlexColumnWidth(4),
           }, children: [
@@ -86,7 +95,7 @@ laporanNotaDinas(
               pw.Padding(
                 padding: const pw.EdgeInsets.symmetric(vertical: 3),
                 child: pw.Text(
-                  'Kepada Yth.',
+                  'Nama',
                   style: const pw.TextStyle(
                     fontSize: 12,
                   ),
@@ -104,7 +113,7 @@ laporanNotaDinas(
               pw.Padding(
                 padding: const pw.EdgeInsets.symmetric(vertical: 3),
                 child: pw.Text(
-                  'Kepala Dinas Komunikasi dan Informatika',
+                  data.docs[0]['nama'],
                   style: const pw.TextStyle(
                     fontSize: 12,
                   ),
@@ -115,7 +124,7 @@ laporanNotaDinas(
               pw.Padding(
                 padding: const pw.EdgeInsets.symmetric(vertical: 3),
                 child: pw.Text(
-                  'Dari',
+                  'Nomor SPPD',
                   style: const pw.TextStyle(
                     fontSize: 12,
                   ),
@@ -133,7 +142,7 @@ laporanNotaDinas(
               pw.Padding(
                 padding: const pw.EdgeInsets.symmetric(vertical: 3),
                 child: pw.Text(
-                  "Kepala Bidang ${getUser.docs[0]['bidang']}",
+                  data.docs[0]['no_sppd'],
                   style: const pw.TextStyle(
                     fontSize: 12,
                   ),
@@ -144,7 +153,7 @@ laporanNotaDinas(
               pw.Padding(
                 padding: const pw.EdgeInsets.symmetric(vertical: 3),
                 child: pw.Text(
-                  'Tanggal',
+                  'Tempat Tujuan',
                   style: const pw.TextStyle(
                     fontSize: 12,
                   ),
@@ -162,7 +171,7 @@ laporanNotaDinas(
               pw.Padding(
                 padding: const pw.EdgeInsets.symmetric(vertical: 3),
                 child: pw.Text(
-                  tanggalBuat,
+                  data.docs[0]['tempat_tujuan'],
                   style: const pw.TextStyle(
                     fontSize: 12,
                   ),
@@ -173,7 +182,7 @@ laporanNotaDinas(
               pw.Padding(
                 padding: const pw.EdgeInsets.symmetric(vertical: 3),
                 child: pw.Text(
-                  'Nomor Surat',
+                  'Tanggal Berangkat',
                   style: const pw.TextStyle(
                     fontSize: 12,
                   ),
@@ -191,7 +200,7 @@ laporanNotaDinas(
               pw.Padding(
                 padding: const pw.EdgeInsets.symmetric(vertical: 3),
                 child: pw.Text(
-                  noSurat,
+                  formatDate(data.docs[0]['tanggal_berangkat']),
                   style: const pw.TextStyle(
                     fontSize: 12,
                   ),
@@ -202,7 +211,7 @@ laporanNotaDinas(
               pw.Padding(
                 padding: const pw.EdgeInsets.symmetric(vertical: 3),
                 child: pw.Text(
-                  'Perihal',
+                  'Tanggal Kembali',
                   style: const pw.TextStyle(
                     fontSize: 12,
                   ),
@@ -220,7 +229,7 @@ laporanNotaDinas(
               pw.Padding(
                 padding: const pw.EdgeInsets.symmetric(vertical: 3),
                 child: pw.Text(
-                  perihal,
+                  formatDate(data.docs[0]['tanggal_kembali']),
                   style: const pw.TextStyle(
                     fontSize: 12,
                   ),
@@ -236,18 +245,10 @@ laporanNotaDinas(
               child: pw.Divider(),
             )
           ]),
-          pw.Text('A. Maksud dan Tujuan : ',
-              style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-          pw.Text(
-            maksudTujuan,
-            style: const pw.TextStyle(
-              fontSize: 12,
-            ),
-          ),
           pw.SizedBox(height: 4),
-          pw.Text('B. Untuk Menugaskan Melakukan Perjalanan Dinas : ',
+          pw.Text('Kegiatan : ',
               style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-          pw.SizedBox(height: 2),
+          pw.SizedBox(height: 4),
           pw.Table(
               columnWidths: {
                 0: const pw.FlexColumnWidth(0.8),
@@ -270,7 +271,7 @@ laporanNotaDinas(
                   pw.Padding(
                     padding: const pw.EdgeInsets.all(8),
                     child: pw.Text(
-                      'NAMA / NIP',
+                      'Kegiatan',
                       textAlign: pw.TextAlign.center,
                       style: pw.TextStyle(
                           fontSize: 12, fontWeight: pw.FontWeight.bold),
@@ -279,7 +280,7 @@ laporanNotaDinas(
                   pw.Padding(
                     padding: const pw.EdgeInsets.all(8),
                     child: pw.Text(
-                      'PANGKAT / GOL',
+                      'Tanggal',
                       textAlign: pw.TextAlign.center,
                       style: pw.TextStyle(
                           fontSize: 12, fontWeight: pw.FontWeight.bold),
@@ -288,192 +289,56 @@ laporanNotaDinas(
                   pw.Padding(
                     padding: const pw.EdgeInsets.all(8),
                     child: pw.Text(
-                      'JABATAN',
+                      'Keterangan',
                       textAlign: pw.TextAlign.center,
                       style: pw.TextStyle(
                           fontSize: 12, fontWeight: pw.FontWeight.bold),
                     ),
                   ),
                 ]),
-                pw.TableRow(children: [
-                  pw.Padding(
-                    padding: const pw.EdgeInsets.all(9),
-                    child: pw.Text(
-                      '1',
-                      textAlign: pw.TextAlign.center,
-                      style: const pw.TextStyle(
-                        fontSize: 12,
+                for (var i = 0; i < 3; i++)
+                  pw.TableRow(children: [
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(9),
+                      child: pw.Text(
+                        '1',
+                        textAlign: pw.TextAlign.center,
+                        style: const pw.TextStyle(
+                          fontSize: 12,
+                        ),
                       ),
                     ),
-                  ),
-                  pw.Padding(
-                    padding: const pw.EdgeInsets.all(6),
-                    child: pw.Text(
-                      nama,
-                      style: const pw.TextStyle(
-                        fontSize: 12,
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(6),
+                      child: pw.Text(
+                        kegiatan[i],
+                        style: const pw.TextStyle(
+                          fontSize: 12,
+                        ),
                       ),
                     ),
-                  ),
-                  pw.Padding(
-                    padding: const pw.EdgeInsets.all(6),
-                    child: pw.Text(
-                      getUser.docs[0]['golongan'],
-                      style: const pw.TextStyle(
-                        fontSize: 12,
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(6),
+                      child: pw.Text(
+                        // getUser.docs[0]['golongan'],
+                        formatTanggal[i].toString(),
+                        style: const pw.TextStyle(
+                          fontSize: 12,
+                        ),
                       ),
                     ),
-                  ),
-                  pw.Padding(
-                    padding: const pw.EdgeInsets.all(6),
-                    child: pw.Text(
-                      getUser.docs[0]['jabatan'],
-                      style: const pw.TextStyle(
-                        fontSize: 12,
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(6),
+                      child: pw.Text(
+                        // getUser.docs[0]['jabatan'],
+                        keterangan[i],
+                        style: const pw.TextStyle(
+                          fontSize: 12,
+                        ),
                       ),
                     ),
-                  ),
-                ]),
+                  ]),
               ]),
-          pw.SizedBox(height: 4),
-          pw.Text('C. Lokasi : ',
-              style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-          pw.Text(
-            ' - Tempat Berangkat : Kandangan',
-            style: const pw.TextStyle(
-              fontSize: 12,
-            ),
-          ),
-          pw.Text(
-            ' - Tempat Tujuan : $tempatTujuan',
-            style: const pw.TextStyle(
-              fontSize: 12,
-            ),
-          ),
-          pw.Table(columnWidths: {
-            0: const pw.FlexColumnWidth(2),
-            1: const pw.FlexColumnWidth(0.1),
-            2: const pw.FlexColumnWidth(3),
-          }, children: [
-            pw.TableRow(children: [
-              pw.Padding(
-                padding: const pw.EdgeInsets.symmetric(vertical: 3),
-                child: pw.Text(
-                  'D. Lama Keberangkatan',
-                  style: pw.TextStyle(
-                    fontSize: 12,
-                    fontWeight: pw.FontWeight.bold,
-                  ),
-                ),
-              ),
-              pw.Padding(
-                padding: const pw.EdgeInsets.symmetric(vertical: 3),
-                child: pw.Text(
-                  ':',
-                  style: const pw.TextStyle(
-                    fontSize: 12,
-                  ),
-                ),
-              ),
-              pw.Padding(
-                padding: const pw.EdgeInsets.symmetric(vertical: 3),
-                child: pw.Text(
-                  '$hari Hari',
-                  style: const pw.TextStyle(
-                    fontSize: 12,
-                  ),
-                ),
-              ),
-            ]),
-            pw.TableRow(children: [
-              pw.Padding(
-                padding: const pw.EdgeInsets.symmetric(vertical: 3),
-                child: pw.Text(
-                  '',
-                  style: pw.TextStyle(
-                    fontSize: 12,
-                    fontWeight: pw.FontWeight.bold,
-                  ),
-                ),
-              ),
-              pw.Padding(
-                padding: const pw.EdgeInsets.symmetric(vertical: 3),
-                child: pw.Text(
-                  '',
-                  style: const pw.TextStyle(
-                    fontSize: 12,
-                  ),
-                ),
-              ),
-              pw.Table(columnWidths: {
-                0: const pw.FlexColumnWidth(2),
-                1: const pw.FlexColumnWidth(0.2),
-                2: const pw.FlexColumnWidth(3),
-              }, children: [
-                pw.TableRow(children: [
-                  pw.Padding(
-                    padding: const pw.EdgeInsets.symmetric(vertical: 3),
-                    child: pw.Text(
-                      'Tanggal Berangkat',
-                      style: const pw.TextStyle(
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                  pw.Padding(
-                    padding: const pw.EdgeInsets.symmetric(vertical: 3),
-                    child: pw.Text(
-                      ' : ',
-                      style: const pw.TextStyle(
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                  pw.Padding(
-                    padding: const pw.EdgeInsets.symmetric(vertical: 3),
-                    child: pw.Text(
-                      tanggalBerangkat,
-                      style: const pw.TextStyle(
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                ]),
-                pw.TableRow(children: [
-                  pw.Padding(
-                    padding: const pw.EdgeInsets.symmetric(vertical: 3),
-                    child: pw.Text(
-                      'Tanggal Kembali',
-                      style: const pw.TextStyle(
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                  pw.Padding(
-                    padding: const pw.EdgeInsets.symmetric(vertical: 3),
-                    child: pw.Text(
-                      ' : ',
-                      style: const pw.TextStyle(
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                  pw.Padding(
-                    padding: const pw.EdgeInsets.symmetric(vertical: 3),
-                    child: pw.Text(
-                      tanggalKembali,
-                      style: const pw.TextStyle(
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                ])
-              ]),
-            ]),
-          ]),
-          pw.SizedBox(height: 4),
-          pw.Text(
-              'Demikian disampaikan dengan hormat, mohon arahan dan persetujuan Ibu.'),
           pw.SizedBox(height: 18),
           pw.Align(
               alignment: pw.Alignment.centerRight,

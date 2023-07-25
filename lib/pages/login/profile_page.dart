@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
@@ -159,6 +160,9 @@ class _ProfilePageState extends State<ProfilePage> {
                         onTap: () {},
                         controller: nipController,
                         maxLength: 16,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly
+                        ],
                         cursorColor: Colors.black,
                         style: const TextStyle(fontSize: 17),
                         decoration: InputDecoration(
@@ -208,6 +212,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         if (value == null) {
                           return 'Pilih Pangkat';
                         }
+                        return value.toString();
                       },
                       onChanged: (value) {
                         selectedValuePangkat = value.toString();
@@ -257,6 +262,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         if (value == null) {
                           return 'Pilih Bidang';
                         }
+                        return value.toString();
                       },
                       onChanged: (value) {
                         selectedValueBidang = value.toString();

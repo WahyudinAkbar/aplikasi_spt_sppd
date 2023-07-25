@@ -1,9 +1,18 @@
 import 'package:aplikasi_kepegawaian/constant.dart';
+import 'package:aplikasi_kepegawaian/pages/anggaran/anggaran_page.dart';
+import 'package:aplikasi_kepegawaian/pages/anggaran/create_anggaran_page.dart';
 import 'package:aplikasi_kepegawaian/pages/homepage/home_page.dart';
 import 'package:aplikasi_kepegawaian/pages/homepage/home_page_user.dart';
+import 'package:aplikasi_kepegawaian/pages/kegiatan/create_kegiatan_page.dart';
+import 'package:aplikasi_kepegawaian/pages/kegiatan/kegiatan_page.dart';
+import 'package:aplikasi_kepegawaian/pages/kegiatan/tes.dart';
+import 'package:aplikasi_kepegawaian/pages/kuitansi/kuitansi_page.dart';
 import 'package:aplikasi_kepegawaian/pages/login/login_page.dart';
 import 'package:aplikasi_kepegawaian/pages/login/profile_page.dart';
+import 'package:aplikasi_kepegawaian/pages/nota_dinas/show_photo_page.dart';
 import 'package:aplikasi_kepegawaian/pages/pegawai/pegawai_page.dart';
+import 'package:aplikasi_kepegawaian/pages/pengeluaran/create_pengeluaran_page.dart';
+import 'package:aplikasi_kepegawaian/pages/pengeluaran/pengeluaran_page.dart';
 import 'package:aplikasi_kepegawaian/pages/spt/spt_page.dart';
 import 'package:aplikasi_kepegawaian/tes.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -44,7 +53,7 @@ class MyApp extends StatelessWidget {
           builder: ((context, snapshot) {
             if (snapshot.data?.data() != null) {
               if (snapshot.data?.get('roles') == 'admin') {
-                return const HomePage();
+                return const PengeluaranPage();
               } else if (snapshot.data?.get('roles') == 'user') {
                 return const HomePageUser();
               }

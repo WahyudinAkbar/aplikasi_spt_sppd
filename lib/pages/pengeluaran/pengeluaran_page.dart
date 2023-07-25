@@ -1,6 +1,11 @@
+import 'package:aplikasi_kepegawaian/pages/login/register_page.dart';
 import 'package:aplikasi_kepegawaian/pages/nota_dinas/create_nota_dinas_page.dart';
-import 'package:aplikasi_kepegawaian/pages/sppd/edit_sppd_page.dart';
-import 'package:aplikasi_kepegawaian/pages/sppd/laporan_sppd.dart';
+import 'package:aplikasi_kepegawaian/pages/nota_dinas/edit_nota_dinas_page.dart';
+import 'package:aplikasi_kepegawaian/pages/nota_dinas/laporan_nota_dinas.dart';
+import 'package:aplikasi_kepegawaian/pages/nota_dinas/show_photo_page.dart';
+import 'package:aplikasi_kepegawaian/pages/pengeluaran/create_pengeluaran_page.dart';
+import 'package:aplikasi_kepegawaian/pages/pengeluaran/edit_pengeluaran_page.dart';
+import 'package:aplikasi_kepegawaian/pages/pengeluaran/report_pengeluaran.dart';
 import 'package:aplikasi_kepegawaian/widget/drawer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -10,14 +15,14 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 
-class SppdPage extends StatefulWidget {
-  const SppdPage({super.key});
+class PengeluaranPage extends StatefulWidget {
+  const PengeluaranPage({super.key});
 
   @override
-  State<SppdPage> createState() => _SppdPageState();
+  State<PengeluaranPage> createState() => _PengeluaranPageState();
 }
 
-class _SppdPageState extends State<SppdPage> {
+class _PengeluaranPageState extends State<PengeluaranPage> {
   @override
   void initState() {
     super.initState();
@@ -50,7 +55,7 @@ class _SppdPageState extends State<SppdPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "Surat Perintah Perjalanan Dinas",
+                      "Pengeluaran Rill",
                       style:
                           TextStyle(fontSize: 26, fontWeight: FontWeight.w500),
                     ),
@@ -69,12 +74,14 @@ class _SppdPageState extends State<SppdPage> {
                     return FirestoreQueryBuilder(
                       query: snapshot.data?.get('roles') != 'user'
                           ? FirebaseFirestore.instance
-                              .collection('sppd')
+                              .collection('pengeluaran')
                               .orderBy('no_sppd', descending: false)
-                          : FirebaseFirestore.instance.collection('sppd').where(
-                              'userId',
-                              isEqualTo: FirebaseAuth.instance.currentUser?.uid)
-                        ..orderBy('no_sppd', descending: false),
+                          : FirebaseFirestore.instance
+                              .collection('pengeluaran')
+                              .where('userId',
+                                  isEqualTo:
+                                      FirebaseAuth.instance.currentUser?.uid)
+                              .orderBy('no_sppd', descending: false),
                       builder: (context, snapshot, _) {
                         return PaginatedDataTable(
                           rowsPerPage: rowsPerPage,
@@ -83,28 +90,19 @@ class _SppdPageState extends State<SppdPage> {
                               label: Text('No'),
                             ),
                             DataColumn(
-                              label: Text('No Surat'),
+                              label: Text('No Sppd'),
                             ),
                             DataColumn(
                               label: Text('Nama'),
                             ),
                             DataColumn(
-                              label: Text('Maksud Tujuan'),
+                              label: Text('Keterangan'),
                             ),
                             DataColumn(
-                              label: Text('Tempat Tujuan'),
+                              label: Text('Jumlah'),
                             ),
                             DataColumn(
-                              label: Text('Tanggal Berangkat'),
-                            ),
-                            DataColumn(
-                              label: Text('Tanggal Kembali'),
-                            ),
-                            DataColumn(
-                              label: Text('Alat Transportasi'),
-                            ),
-                            DataColumn(
-                              label: Text('Keterangan Lain-lain'),
+                              label: Text('Total'),
                             ),
                             DataColumn(
                               label: Text('Action'),
@@ -122,15 +120,14 @@ class _SppdPageState extends State<SppdPage> {
                 child: Align(
                   alignment: Alignment.bottomCenter,
                   child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      border: const Border(top: BorderSide(color: Colors.grey)),
+                      border: Border(top: BorderSide(color: Colors.grey)),
                       boxShadow: [
                         BoxShadow(
                             color: Colors.grey.shade500,
-                            offset: const Offset(0, -1),
+                            offset: Offset(0, -1),
                             blurRadius: 7,
                             spreadRadius: 1)
                       ],
@@ -138,11 +135,11 @@ class _SppdPageState extends State<SppdPage> {
                     width: MediaQuery.of(context).size.width,
                     height: 60,
                     child: ElevatedButton(
-                      child: const Text("Tambah Nota Dinas"),
+                      child: const Text("Tambah Pengeluaran"),
                       onPressed: () {
                         Navigator.push(context, MaterialPageRoute(
                           builder: (context) {
-                            return const CreateNotaDinasPage();
+                            return const CreatePengeluaranPage();
                           },
                         ));
                       },
@@ -154,7 +151,7 @@ class _SppdPageState extends State<SppdPage> {
           ),
         ),
       ),
-      drawer: const MyDrawer(id: '3'),
+      drawer: const MyDrawer(id: '7'),
     );
   }
 }
@@ -177,37 +174,42 @@ class MyData extends DataTableSource {
       DataCell(
         Text(data[index].data()["no_sppd"]),
       ),
-      DataCell(
-        Text(data[index].data()["nama"]),
-      ),
-      DataCell(
-        SizedBox(
-          width: 300,
-          child: Text(
-            data[index].data()["maksud_tujuan"],
-            overflow: TextOverflow.ellipsis,
-            maxLines: 3,
-          ),
+      DataCell(StreamBuilder(
+        stream: FirebaseFirestore.instance
+            .collection('sppd')
+            .where('no_sppd', isEqualTo: data[index].data()["no_sppd"])
+            .limit(1)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const CircularProgressIndicator();
+          } else {
+            print(snapshot.data?.docs[0]['nama']);
+            return Text(snapshot.data?.docs[0]['nama']);
+          }
+        },
+      )),
+      DataCell(SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (var i = 0; i < data[index].data()["keterangan"].length; i++)
+              Text('${i + 1}. ${data[index].data()["keterangan"][i]}')
+          ],
         ),
-      ),
-      DataCell(
-        Text(data[index].data()["tempat_tujuan"]),
-      ),
-      DataCell(
-        Text(
-          formatDate(data[index].data()["tanggal_berangkat"]),
+      )),
+      DataCell(SingleChildScrollView(
+        controller: ScrollController(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (var i = 0; i < data[index].data()["jumlah"].length; i++)
+              Text('${i + 1}. ${data[index].data()["jumlah"][i].toString()}')
+          ],
         ),
-      ),
+      )),
       DataCell(
-        Text(
-          formatDate(data[index].data()["tanggal_kembali"]),
-        ),
-      ),
-      DataCell(
-        Text(data[index].data()["alat_transportasi"]),
-      ),
-      DataCell(
-        Text(data[index].data()["keterangan_lain"]),
+        Text('Rp. ${data[index].data()["total"]}'),
       ),
       DataCell(Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -222,20 +224,12 @@ class MyData extends DataTableSource {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => EditSppdPage(
-                      idSuratTugas: data[index].reference.id,
-                      noSurat: data[index].data()["no_sppd"],
-                      pegawai: data[index].data()["nama"],
-                      tempatTujuan: data[index].data()["tempat_tujuan"],
-                      maksudTujuan: data[index].data()["maksud_tujuan"],
-                      tanggalBerangkat:
-                          data[index].data()["tanggal_berangkat"].toDate(),
-                      tanggalKembali:
-                          data[index].data()["tanggal_kembali"].toDate(),
-                      transportasi: data[index].data()["alat_transportasi"],
-                      keterangan: data[index].data()["keterangan_lain"],
-                    ),
-                  ));
+                      builder: (context) => EditPengeluaranPage(
+                            idPengeluaran: data[index].reference.id,
+                            noSppd: data[index].data()["no_sppd"],
+                            keterangan: data[index].data()["keterangan"],
+                            jumlah: data[index].data()["jumlah"],
+                          )));
             },
           ),
           const SizedBox(
@@ -260,18 +254,11 @@ class MyData extends DataTableSource {
               style: TextStyle(color: Colors.black),
             ),
             onPressed: () {
-              laporanSppd(
-                data[index].data()['no_sppd'],
-                data[index].data()['nama'],
-                data[index].data()['maksud_tujuan'],
-                data[index].data()['tempat_tujuan'],
-                formatDate(data[index].data()['tanggal_berangkat']).toString(),
-                formatDate(data[index].data()['tanggal_kembali']).toString(),
-                hitungHari(data[index].data()['tanggal_kembali'],
-                    data[index].data()['tanggal_berangkat']),
-                data[index].data()['alat_transportasi'],
-                data[index].data()['keterangan_lain'],
-                formatDate(data[index].data()['send_time']).toString(),
+              laporanPengeluaran(
+                data[index].data()["no_sppd"],
+                data[index].data()["keterangan"],
+                data[index].data()["jumlah"],
+                data[index].data()["total"],
               );
             },
           ),
@@ -323,7 +310,10 @@ class MyData extends DataTableSource {
 
   void deleteData(id) async {
     try {
-      await FirebaseFirestore.instance.collection('sppd').doc(id).delete();
+      await FirebaseFirestore.instance
+          .collection('pengeluaran')
+          .doc(id)
+          .delete();
 
       Fluttertoast.showToast(
           msg: "Data Berhasil Dihapus",
@@ -351,5 +341,105 @@ class MyData extends DataTableSource {
       'd MMMM yyyy',
       'id',
     ).format(date.toDate());
+  }
+
+  Widget verticalDivider = const VerticalDivider(
+    color: Colors.black,
+    thickness: 1,
+  );
+
+  // Future<void> buatSptSppd(
+  //   id,
+  //   nama,
+  //   maksudTujuan,
+  //   tempatTujuan,
+  //   tglBerangkat,
+  //   tglKembali,
+  //   userId,
+  // ) async {
+  //   try {
+  //     await FirebaseFirestore.instance.collection('spt').add({
+  //       'no_spt': noSpt,
+  //       'nama': nama,
+  //       'maksud_tujuan': maksudTujuan,
+  //       'tempat_tujuan': tempatTujuan,
+  //       'alat_transportasi': 'Mobil Dinas',
+  //       'tanggal_berangkat': tglBerangkat,
+  //       'tanggal_kembali': tglKembali,
+  //       'userId': userId,
+  //       'send_time': DateTime.now(),
+  //     });
+  //     await FirebaseFirestore.instance.collection('sppd').add({
+  //       'no_sppd': noSppd,
+  //       'nama': nama,
+  //       'maksud_tujuan': maksudTujuan,
+  //       'tempat_tujuan': tempatTujuan,
+  //       'alat_transportasi': 'Mobil Dinas',
+  //       'tanggal_berangkat': tglBerangkat,
+  //       'tanggal_kembali': tglKembali,
+  //       'keterangan_lain': "",
+  //       'userId': userId,
+  //       'send_time': DateTime.now(),
+  //     });
+  //     await FirebaseFirestore.instance.collection('nota_dinas').doc(id).update(
+  //       {'verifikasi': true},
+  //     );
+  //   } catch (e) {
+  //     debugPrint(e.toString());
+  //   }
+  // }
+
+  showAlertVerifikasi(
+    BuildContext context,
+    id,
+    nama,
+    maksudTujuan,
+    tempatTujuan,
+    tglBerangkat,
+    tglKembali,
+    userId,
+  ) {
+    Widget cancelButton = TextButton(
+      child: const Text("Batal"),
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
+    );
+    Widget continueButton = TextButton(
+      child: const Text(
+        "Verifikasi",
+        style: TextStyle(color: Colors.green),
+      ),
+      onPressed: () {
+        // buatSptSppd(
+        //   id,
+        //   nama,
+        //   maksudTujuan,
+        //   tempatTujuan,
+        //   tglBerangkat,
+        //   tglKembali,
+        //   userId,
+        // );
+        Navigator.of(context).pop();
+      },
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: const Text("Verifikasi Data Ini?"),
+      content: const Text("Verifikasi data ini?"),
+      actions: [
+        cancelButton,
+        continueButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
   }
 }

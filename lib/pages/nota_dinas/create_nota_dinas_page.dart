@@ -1,15 +1,19 @@
-import 'package:aplikasi_kepegawaian/pages/nota_dinas/nota_dinas_page%20copy.dart';
+import 'dart:io';
+import 'dart:math';
+
 import 'package:aplikasi_kepegawaian/pages/nota_dinas/nota_dinas_page.dart';
-import 'package:aplikasi_kepegawaian/pages/spt/spt_page.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dotted_border/dotted_border.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class CreateNotaDinasPage extends StatefulWidget {
   const CreateNotaDinasPage({super.key});
@@ -23,7 +27,6 @@ class _CreateNotaDinasPageState extends State<CreateNotaDinasPage> {
   TextEditingController tempatTujuanController = TextEditingController();
   TextEditingController maksudTujuanController = TextEditingController();
   TextEditingController perihalController = TextEditingController();
-  TextEditingController dasarController = TextEditingController();
   TextEditingController tanggalBerangkatController = TextEditingController();
   TextEditingController tanggalKembaliController = TextEditingController();
 
@@ -33,6 +36,10 @@ class _CreateNotaDinasPageState extends State<CreateNotaDinasPage> {
   String? selectedValuePegawai;
 
   List<String> listNama = [];
+
+  String? nameImage;
+  File? image;
+  final picker = ImagePicker();
 
   @override
   void initState() {
@@ -68,9 +75,7 @@ class _CreateNotaDinasPageState extends State<CreateNotaDinasPage> {
                           color: Colors.black,
                         ),
                       ),
-                      const SizedBox(
-                        height: 15,
-                      ),
+                      const SizedBox(height: 15),
                       Text(
                         "No Surat",
                         style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
@@ -136,6 +141,7 @@ class _CreateNotaDinasPageState extends State<CreateNotaDinasPage> {
                           if (value == null) {
                             return 'Pilih Pegawai';
                           }
+                          return value.toString();
                         },
                         onChanged: (value) {
                           selectedValuePegawai = value.toString();
@@ -199,29 +205,95 @@ class _CreateNotaDinasPageState extends State<CreateNotaDinasPage> {
                       ),
                       const SizedBox(height: 15),
                       Text(
-                        "Dasar",
+                        "Dasar Surat (Optional)",
                         style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(
                         height: 5,
                       ),
-                      Container(
-                        padding: const EdgeInsets.only(left: 15, top: 3),
-                        decoration: BoxDecoration(
-                            color: const Color(0xffEBECF0),
-                            borderRadius: BorderRadius.circular(8)),
-                        child: TextFormField(
-                          onTap: () {},
-                          maxLines: 3,
-                          controller: dasarController,
-                          cursorColor: Colors.black,
-                          style: GoogleFonts.poppins(fontSize: 15),
-                          decoration: InputDecoration(
-                              hintText: "Dasar",
-                              border: InputBorder.none,
-                              hintStyle:
-                                  TextStyle(color: Colors.grey.shade700)),
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            child: image == null
+                                ? GestureDetector(
+                                    onTap: () {
+                                      getImage();
+                                    },
+                                    child: DottedBorder(
+                                      borderType: BorderType.RRect,
+                                      color: Colors.blue,
+                                      radius: const Radius.circular(8),
+                                      dashPattern: [7],
+                                      child: const SizedBox(
+                                        width: 150,
+                                        height: 150,
+                                        child: Center(
+                                            child: Text(
+                                          '+ Tambah Foto',
+                                          style: TextStyle(color: Colors.blue),
+                                        )),
+                                      ),
+                                    ),
+                                  )
+                                : SizedBox(
+                                    width: 150,
+                                    child: Stack(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                              top: 10, right: 10),
+                                          child: Image.file(
+                                            image!,
+                                            width: 150,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                        Align(
+                                            alignment: Alignment.topRight,
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          100),
+                                                  color: Colors.white),
+                                              child: const Icon(
+                                                Icons.circle,
+                                                color: Colors.white,
+                                              ),
+                                            )),
+                                        Align(
+                                            alignment: Alignment.topRight,
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                setState(() {
+                                                  image = null;
+                                                });
+                                              },
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          100),
+                                                ),
+                                                child: Icon(
+                                                  Icons.cancel,
+                                                  color: Colors.grey.shade600,
+                                                ),
+                                              ),
+                                            )),
+                                      ],
+                                    )),
+                          ),
+                          // ElevatedButton(
+                          //   onPressed: () {
+                          //     if (image != null) {
+                          //       return uploadImage(image);
+                          //     }
+                          //   },
+                          //   child: Icon(Icons.upload),
+                          // )
+                        ],
                       ),
                       const SizedBox(height: 15),
                       Text(
@@ -381,6 +453,39 @@ class _CreateNotaDinasPageState extends State<CreateNotaDinasPage> {
     }
   }
 
+  void getNameImage() {
+    var random = Random();
+    var rand = random.nextInt(1000000000);
+    setState(() {
+      nameImage = "dasar-surat-$rand";
+    });
+  }
+
+  uploadImage(img) async {
+    await Firebase.initializeApp();
+
+    try {
+      await FirebaseStorage.instance.ref('$nameImage.jpg').putFile(img);
+      print("Uploaded image");
+    } on FirebaseException catch (e) {
+      print(e);
+    }
+  }
+
+  getImage() async {
+    // You can also change the source to gallery like this: "source: ImageSource.camera"
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    setState(() {
+      if (pickedFile != null) {
+        image = File(pickedFile.path);
+        getNameImage();
+        print(nameImage);
+      } else {
+        print('No image has been selected.');
+      }
+    });
+  }
+
   void tambahSuratTugas() async {
     if (noSuratController.text.isNotEmpty &&
         selectedValuePegawai != "" &&
@@ -390,13 +495,16 @@ class _CreateNotaDinasPageState extends State<CreateNotaDinasPage> {
         tanggalBerangkatController.text.isNotEmpty &&
         tanggalKembaliController.text.isNotEmpty) {
       try {
+        if (image != null) {
+          uploadImage(image);
+        }
         await FirebaseFirestore.instance.collection('nota_dinas').add({
           'no_surat': noSuratController.text,
           'nama': selectedValuePegawai,
           'maksud_tujuan': maksudTujuanController.text,
           'tempat_tujuan': tempatTujuanController.text,
           'perihal': perihalController.text,
-          'dasar': dasarController.text.isEmpty ? "" : dasarController.text,
+          'dasar': image == null ? "" : '$nameImage.jpg',
           'tanggal_berangkat': selectedDate1,
           'tanggal_kembali': selectedDate2,
           'verifikasi': false,

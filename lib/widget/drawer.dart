@@ -1,8 +1,10 @@
+import 'package:aplikasi_kepegawaian/pages/anggaran/anggaran_page.dart';
 import 'package:aplikasi_kepegawaian/pages/homepage/home_page_user.dart';
-import 'package:aplikasi_kepegawaian/pages/nota_dinas/nota_dinas_page%20copy.dart';
+import 'package:aplikasi_kepegawaian/pages/kegiatan/kegiatan_page.dart';
 import 'package:aplikasi_kepegawaian/pages/nota_dinas/nota_dinas_page.dart';
 import 'package:aplikasi_kepegawaian/pages/pegawai/pegawai_page.dart';
 import 'package:aplikasi_kepegawaian/pages/pegawai/report_pegawai.dart';
+import 'package:aplikasi_kepegawaian/pages/pengeluaran/pengeluaran_page.dart';
 import 'package:aplikasi_kepegawaian/pages/sppd/laporan_rekap_sppd.dart';
 import 'package:aplikasi_kepegawaian/pages/sppd/sppd_page.dart';
 import 'package:aplikasi_kepegawaian/pages/spt/spt_page.dart';
@@ -127,12 +129,96 @@ class _MyDrawerState extends State<MyDrawer> {
                   style: GoogleFonts.poppins(),
                 ),
               ),
+              ListTile(
+                leading: const FaIcon(
+                  FontAwesomeIcons.solidEnvelope,
+                  size: 22,
+                ),
+                selected: widget.id == '5' ? true : false,
+                onTap: () {
+                  if (widget.id != '5') {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AnggaranPage(),
+                      ),
+                    );
+                  }
+                },
+                title: Text(
+                  'Anggaran',
+                  style: GoogleFonts.poppins(),
+                ),
+              ),
+              ListTile(
+                leading: const FaIcon(
+                  FontAwesomeIcons.solidEnvelope,
+                  size: 22,
+                ),
+                selected: widget.id == '6' ? true : false,
+                onTap: () {
+                  if (widget.id != '6') {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AnggaranPage(),
+                      ),
+                    );
+                  }
+                },
+                title: Text(
+                  'Kuitansi',
+                  style: GoogleFonts.poppins(),
+                ),
+              ),
+              ListTile(
+                leading: const FaIcon(
+                  FontAwesomeIcons.solidEnvelope,
+                  size: 22,
+                ),
+                selected: widget.id == '7' ? true : false,
+                onTap: () {
+                  if (widget.id != '7') {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const PengeluaranPage(),
+                      ),
+                    );
+                  }
+                },
+                title: Text(
+                  'Pengeluaran Rill',
+                  style: GoogleFonts.poppins(),
+                ),
+              ),
+              ListTile(
+                leading: const FaIcon(
+                  FontAwesomeIcons.solidEnvelope,
+                  size: 22,
+                ),
+                selected: widget.id == '8' ? true : false,
+                onTap: () {
+                  if (widget.id != '8') {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const KegiatanPage(),
+                      ),
+                    );
+                  }
+                },
+                title: Text(
+                  'Kegiatan Perjalanan Dinas',
+                  style: GoogleFonts.poppins(),
+                ),
+              ),
               snapshot.data?.get('roles') == 'admin'
                   ? ListTile(
                       leading: const FaIcon(FontAwesomeIcons.solidUser),
-                      selected: widget.id == '5' ? true : false,
+                      selected: widget.id == '9' ? true : false,
                       onTap: () {
-                        if (widget.id != '5') {
+                        if (widget.id != '9') {
                           Navigator.push(
                             context,
                             MaterialPageRoute(

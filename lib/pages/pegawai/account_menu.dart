@@ -1,5 +1,6 @@
 import 'package:aplikasi_kepegawaian/pages/pegawai/change_email.dart';
 import 'package:aplikasi_kepegawaian/pages/pegawai/change_password.dart';
+import 'package:aplikasi_kepegawaian/pages/pegawai/change_roles.dart';
 import 'package:aplikasi_kepegawaian/pages/pegawai/edit_pegawai_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -14,6 +15,7 @@ class AccountMenu extends StatefulWidget {
   final String email;
   final String password;
   final String idPegawai;
+  final String roles;
 
   const AccountMenu({
     super.key,
@@ -26,6 +28,7 @@ class AccountMenu extends StatefulWidget {
     required this.email,
     required this.password,
     required this.idPegawai,
+    required this.roles,
   });
 
   @override
@@ -59,6 +62,7 @@ class _AccountMenuState extends State<AccountMenu> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => EditPegawaiPage(
+                            idPegawai: widget.idPegawai,
                             title: "Edit Profil",
                             username: widget.username,
                             nama: widget.nama,
@@ -166,6 +170,38 @@ class _AccountMenuState extends State<AccountMenu> {
                     children: [
                       Text(
                         'Ganti Password',
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const Icon(
+                        Icons.arrow_forward_ios,
+                        size: 16,
+                      )
+                    ],
+                  ),
+                ),
+                Divider(
+                  color: Colors.grey,
+                ),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ChangeRoles(
+                            roles: widget.roles,
+                            idPegawai: widget.idPegawai,
+                          ),
+                        ));
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Ganti Roles',
                         style: GoogleFonts.poppins(
                           fontSize: 16,
                           fontWeight: FontWeight.w400,
