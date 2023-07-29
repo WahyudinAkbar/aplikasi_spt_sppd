@@ -1,6 +1,7 @@
 import 'package:aplikasi_kepegawaian/pages/anggaran/anggaran_page.dart';
 import 'package:aplikasi_kepegawaian/pages/homepage/home_page_user.dart';
 import 'package:aplikasi_kepegawaian/pages/kegiatan/kegiatan_page.dart';
+import 'package:aplikasi_kepegawaian/pages/kuitansi/kuitansi_page.dart';
 import 'package:aplikasi_kepegawaian/pages/nota_dinas/nota_dinas_page.dart';
 import 'package:aplikasi_kepegawaian/pages/pegawai/pegawai_page.dart';
 import 'package:aplikasi_kepegawaian/pages/pegawai/report_pegawai.dart';
@@ -161,7 +162,7 @@ class _MyDrawerState extends State<MyDrawer> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const AnggaranPage(),
+                        builder: (context) => const KuitansiPage(),
                       ),
                     );
                   }
@@ -240,13 +241,13 @@ class _MyDrawerState extends State<MyDrawer> {
                       children: [
                         ListTile(
                           onTap: () {
-                            laporanRekapSppd();
+                            laporanRekapSppd(context);
                           },
                           title: const Text('Cetak Rekapan Perjalanan Dinas'),
                         ),
                         ListTile(
                           onTap: () {
-                            reportPegawai();
+                            reportPegawai(context);
                           },
                           title: const Text('Cetak Data Pegawai'),
                         )

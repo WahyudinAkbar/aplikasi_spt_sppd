@@ -6,6 +6,7 @@ import 'package:aplikasi_kepegawaian/pages/homepage/home_page_user.dart';
 import 'package:aplikasi_kepegawaian/pages/kegiatan/create_kegiatan_page.dart';
 import 'package:aplikasi_kepegawaian/pages/kegiatan/kegiatan_page.dart';
 import 'package:aplikasi_kepegawaian/pages/kegiatan/tes.dart';
+import 'package:aplikasi_kepegawaian/pages/kuitansi/create_kuitansi_page.dart';
 import 'package:aplikasi_kepegawaian/pages/kuitansi/kuitansi_page.dart';
 import 'package:aplikasi_kepegawaian/pages/login/login_page.dart';
 import 'package:aplikasi_kepegawaian/pages/login/profile_page.dart';
@@ -53,7 +54,7 @@ class MyApp extends StatelessWidget {
           builder: ((context, snapshot) {
             if (snapshot.data?.data() != null) {
               if (snapshot.data?.get('roles') == 'admin') {
-                return const PengeluaranPage();
+                return const AnggaranPage();
               } else if (snapshot.data?.get('roles') == 'user') {
                 return const HomePageUser();
               }

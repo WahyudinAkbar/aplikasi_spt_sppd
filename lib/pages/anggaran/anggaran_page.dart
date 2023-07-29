@@ -1,5 +1,6 @@
 import 'package:aplikasi_kepegawaian/pages/anggaran/create_anggaran_page.dart';
 import 'package:aplikasi_kepegawaian/pages/anggaran/edit_anggaran_page.dart';
+import 'package:aplikasi_kepegawaian/pages/anggaran/report_anggaran.dart';
 import 'package:aplikasi_kepegawaian/pages/login/register_page.dart';
 import 'package:aplikasi_kepegawaian/pages/nota_dinas/create_nota_dinas_page.dart';
 import 'package:aplikasi_kepegawaian/pages/nota_dinas/edit_nota_dinas_page.dart';
@@ -251,19 +252,13 @@ class MyData extends DataTableSource {
               style: TextStyle(color: Colors.black),
             ),
             onPressed: () {
-              laporanNotaDinas(
-                data[index].data()['no_surat'],
-                data[index].data()['nama'],
-                data[index].data()['perihal'],
-                data[index].data()['dasar'],
-                data[index].data()['maksud_tujuan'],
-                data[index].data()['tempat_tujuan'],
-                data[index].data()['maksud_tujuan'],
-                formatDate(data[index].data()['tanggal_berangkat']).toString(),
-                formatDate(data[index].data()['tanggal_kembali']).toString(),
-                hitungHari(data[index].data()['tanggal_kembali'],
-                    data[index].data()['tanggal_berangkat']),
-                formatDate(data[index].data()['send_time']).toString(),
+              laporanAnggaran(
+                context,
+                data[index].data()['no_sppd'],
+                data[index].data()['uang_harian'],
+                data[index].data()['biaya_transportasi'],
+                data[index].data()['biaya_penginapan'],
+                data[index].data()['total'],
               );
             },
           ),

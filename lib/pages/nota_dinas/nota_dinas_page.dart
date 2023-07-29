@@ -287,6 +287,7 @@ class MyData extends DataTableSource {
                   ),
                   onPressed: () {
                     laporanNotaDinas(
+                      context,
                       data[index].data()['no_surat'],
                       data[index].data()['nama'],
                       data[index].data()['perihal'],

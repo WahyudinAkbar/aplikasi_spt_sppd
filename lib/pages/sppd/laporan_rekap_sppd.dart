@@ -1,16 +1,18 @@
 import 'dart:io';
 
-import 'package:aplikasi_kepegawaian/pages/spt/report_view_page.dart';
+import 'package:aplikasi_kepegawaian/pages/pdf/view_pdf.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
+import 'package:path/path.dart' as path;
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
-laporanRekapSppd() async {
+laporanRekapSppd(BuildContext context) async {
   final pdf = pw.Document();
   final image = pw.MemoryImage(
     (await rootBundle.load('assets/logo_report_sppd.png')).buffer.asUint8List(),
@@ -159,11 +161,33 @@ laporanRekapSppd() async {
       }));
 
   final String dir = (await getApplicationDocumentsDirectory()).path;
-  final String path = '$dir/report.pdf';
-  final File file = File(path);
+  final String temp = '$dir/report.pdf';
+  final File file = File(temp);
   await file.writeAsBytes(await pdf.save());
 
-  await Printing.layoutPdf(
-    onLayout: (format) async => pdf.save(),
-  );
+  // ignore: use_build_context_synchronously
+  Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PdfView(
+          path: temp,
+          callback: () async {
+            String namePdf = "Rekap-Sppd";
+            var dir = await getExternalStorageDirectory();
+            dir = Directory('/storage/emulated/0/Download');
+            final File file =
+                File(path.join(dir.path, path.basename('$namePdf.pdf')));
+            await file.writeAsBytes(await pdf.save());
+
+            Fluttertoast.showToast(
+                msg: "PDF Berhasil Disimpan",
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.CENTER,
+                timeInSecForIosWeb: 3,
+                backgroundColor: Colors.blue,
+                textColor: Colors.white,
+                fontSize: 16.0);
+          },
+        ),
+      ));
 }

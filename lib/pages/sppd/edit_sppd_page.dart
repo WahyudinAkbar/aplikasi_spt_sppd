@@ -171,6 +171,7 @@ class _EditSppdPageState extends State<EditSppdPage> {
                           if (value == null) {
                             return 'Pilih Pegawai';
                           }
+                          return value;
                         },
                         onChanged: (value) {
                           selectedValuePegawai = value.toString();

@@ -17,14 +17,12 @@ class CreateKuitansiPage extends StatefulWidget {
 }
 
 class _CreateKuitansiPageState extends State<CreateKuitansiPage> {
-  TextEditingController uangHarianController = TextEditingController();
-  TextEditingController biayaTransportasiController = TextEditingController();
-  TextEditingController biayaPenginapanController = TextEditingController();
-  TextEditingController totalController = TextEditingController();
+  TextEditingController jumlahDanaController = TextEditingController();
+  TextEditingController perihalController = TextEditingController();
+  TextEditingController terbilangController = TextEditingController();
 
   List<String> listSppd = [];
   String? selectedValueSppd;
-  List i = [for (var j = 0; j < 3; j++) 0];
 
   @override
   void initState() {
@@ -110,7 +108,7 @@ class _CreateKuitansiPageState extends State<CreateKuitansiPage> {
                       ),
                       const SizedBox(height: 15),
                       Text(
-                        "Uang Harian",
+                        "Jumlah Dana",
                         style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(
@@ -124,53 +122,14 @@ class _CreateKuitansiPageState extends State<CreateKuitansiPage> {
                         child: TextFormField(
                           onTap: () {},
                           onChanged: (value) {
-                            setState(() {
-                              if (value.isEmpty) {
-                                i[0] = 0;
-                              } else {
-                                i[0] = int.parse(value);
-                              }
-                              countTotal();
-                            });
-                          },
-                          controller: uangHarianController,
-                          cursorColor: Colors.black,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly
-                          ],
-                          keyboardType: TextInputType.number,
-                          style: GoogleFonts.poppins(fontSize: 15),
-                          decoration: InputDecoration(
-                              hintText: "Uang Harian",
-                              border: InputBorder.none,
-                              hintStyle:
-                                  TextStyle(color: Colors.grey.shade700)),
-                        ),
-                      ),
-                      const SizedBox(height: 15),
-                      Text(
-                        "Biaya Transportasi",
-                        style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
-                      ),
-                      const SizedBox(
-                        height: 5,
-                      ),
-                      Container(
-                        padding: const EdgeInsets.only(left: 15, top: 3),
-                        decoration: BoxDecoration(
-                            color: const Color(0xffEBECF0),
-                            borderRadius: BorderRadius.circular(8)),
-                        child: TextFormField(
-                          onTap: () {},
-                          onChanged: (value) {
-                            if (value.isEmpty) {
-                              i[1] = 0;
+                            if (value.isNotEmpty) {
+                              terbilangController.text =
+                                  terbilang(int.parse(value));
                             } else {
-                              i[1] = int.parse(value);
+                              terbilangController.text = "";
                             }
-                            countTotal();
                           },
-                          controller: biayaTransportasiController,
+                          controller: jumlahDanaController,
                           cursorColor: Colors.black,
                           inputFormatters: [
                             FilteringTextInputFormatter.digitsOnly
@@ -178,7 +137,7 @@ class _CreateKuitansiPageState extends State<CreateKuitansiPage> {
                           keyboardType: TextInputType.number,
                           style: GoogleFonts.poppins(fontSize: 15),
                           decoration: InputDecoration(
-                              hintText: "Biaya Transportasi",
+                              hintText: "Jumlah Dana",
                               border: InputBorder.none,
                               hintStyle:
                                   TextStyle(color: Colors.grey.shade700)),
@@ -186,7 +145,7 @@ class _CreateKuitansiPageState extends State<CreateKuitansiPage> {
                       ),
                       const SizedBox(height: 15),
                       Text(
-                        "Biaya Penginapan",
+                        "Perihal Pembayaran",
                         style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(
@@ -199,23 +158,11 @@ class _CreateKuitansiPageState extends State<CreateKuitansiPage> {
                             borderRadius: BorderRadius.circular(8)),
                         child: TextFormField(
                           onTap: () {},
-                          onChanged: (value) {
-                            if (value.isEmpty) {
-                              i[2] = 0;
-                            } else {
-                              i[2] = int.parse(value);
-                            }
-                            countTotal();
-                          },
-                          controller: biayaPenginapanController,
+                          controller: perihalController,
                           cursorColor: Colors.black,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly
-                          ],
-                          keyboardType: TextInputType.number,
                           style: GoogleFonts.poppins(fontSize: 15),
                           decoration: InputDecoration(
-                              hintText: "Biaya Penginapan",
+                              hintText: "Perihal Pembayaran",
                               border: InputBorder.none,
                               hintStyle:
                                   TextStyle(color: Colors.grey.shade700)),
@@ -223,7 +170,7 @@ class _CreateKuitansiPageState extends State<CreateKuitansiPage> {
                       ),
                       const SizedBox(height: 15),
                       Text(
-                        "Total",
+                        "Terbilang",
                         style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(
@@ -237,11 +184,11 @@ class _CreateKuitansiPageState extends State<CreateKuitansiPage> {
                         child: TextFormField(
                           onTap: () {},
                           readOnly: true,
-                          controller: totalController,
+                          controller: terbilangController,
                           cursorColor: Colors.black,
                           style: GoogleFonts.poppins(fontSize: 15),
                           decoration: InputDecoration(
-                              hintText: "0",
+                              hintText: "",
                               border: InputBorder.none,
                               hintStyle:
                                   TextStyle(color: Colors.grey.shade700)),
@@ -284,12 +231,58 @@ class _CreateKuitansiPageState extends State<CreateKuitansiPage> {
         ));
   }
 
-  void countTotal() {
-    setState(() {
-      int total = i[0] + i[1] + i[2];
+  String penyebut(nominal) {
+    var nilai = nominal.abs();
+    List huruf = [
+      "",
+      "satu",
+      "dua",
+      "tiga",
+      "empat",
+      "lima",
+      "enam",
+      "tujuh",
+      "delapan",
+      "sembilan",
+      "sepuluh",
+      "sebelas"
+    ];
+    String temp = "";
+    if (nilai < 12) {
+      temp = "${huruf[nilai.toInt()]}";
+    } else if (nilai < 20) {
+      temp = "${penyebut(nilai - 10)} belas";
+    } else if (nilai < 100) {
+      temp = "${penyebut(nilai / 10)} puluh ${penyebut(nilai % 10)}";
+    } else if (nilai < 200) {
+      temp = "seratus ${penyebut(nilai - 100)}";
+    } else if (nilai < 1000) {
+      temp = "${penyebut(nilai / 100)} ratus ${penyebut(nilai % 100)}";
+    } else if (nilai < 2000) {
+      temp = "seribu ${penyebut(nilai - 1000)}";
+    } else if (nilai < 1000000) {
+      temp = "${penyebut(nilai / 1000)} ribu ${penyebut(nilai % 1000)}";
+    } else if (nilai < 1000000000) {
+      temp = "${penyebut(nilai / 1000000)} juta ${penyebut(nilai % 1000000)}";
+    } else if (nilai < 1000000000000) {
+      temp =
+          "${penyebut(nilai / 1000000000)} milyar ${penyebut(nilai % 1000000000)}";
+    } else if (nilai < 1000000000000000) {
+      temp =
+          "${penyebut(nilai / 1000000000000)} trilyun ${penyebut(nilai % 1000000000000)}";
+    }
+    return temp;
+  }
 
-      totalController.text = total.toString();
-    });
+  String terbilang(nilai) {
+    String hasil = '';
+    if (nilai < 0) {
+      hasil = "minus ${penyebut(nilai).trim()}";
+    } else {
+      hasil = penyebut(nilai).trim();
+    }
+
+    return hasil.replaceAll(RegExp('\\s+'), ' ');
   }
 
   void getSppd() async {
@@ -326,16 +319,13 @@ class _CreateKuitansiPageState extends State<CreateKuitansiPage> {
 
   void tambahKuitansi() async {
     if (selectedValueSppd != "" &&
-        uangHarianController.text.isNotEmpty &&
-        biayaPenginapanController.text.isNotEmpty &&
-        biayaTransportasiController.text.isNotEmpty) {
+        jumlahDanaController.text.isNotEmpty &&
+        perihalController.text.isNotEmpty) {
       try {
         await FirebaseFirestore.instance.collection('kuitansi').add({
           'no_sppd': selectedValueSppd,
-          'uang_harian': int.parse(uangHarianController.text),
-          'biaya_transportasi': int.parse(biayaTransportasiController.text),
-          'biaya_penginapan': int.parse(biayaPenginapanController.text),
-          'total': int.parse(totalController.text),
+          'jumlah_dana': int.parse(jumlahDanaController.text),
+          'perihal_pembayaran': perihalController.text,
         });
 
         // ignore: use_build_context_synchronously

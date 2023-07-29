@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:aplikasi_kepegawaian/pages/pdf/view_pdf.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -9,39 +10,47 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:path/path.dart' as path;
 import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
 
-laporanKegiatan(
+laporanAnggaran(
   BuildContext context,
   String noSppd,
-  List kegiatan,
-  List tanggal,
-  List keterangan,
+  int uangHarian,
+  int biayaTransportasi,
+  int biayaPenginapan,
+  int total,
 ) async {
   final pdf = pw.Document();
   final image = pw.MemoryImage(
     (await rootBundle.load('assets/logo_report_sppd.png')).buffer.asUint8List(),
   );
 
-  List formatTanggal = [];
-
-  String formatDate(tanggal) {
-    return DateFormat(
-      'd MMMM yyyy',
-      'id',
-    ).format(
-      tanggal.toDate(),
-    );
-  }
-
-  for (var i = 0; i < tanggal.length; i++) {
-    formatTanggal.add(formatDate(tanggal[i]));
-  }
+  // String formatDate(tanggal) {
+  //   return DateFormat(
+  //     'd MMMM yyyy',
+  //     'id',
+  //   ).format(
+  //     tanggal.toDate(),
+  //   );
+  // }
 
   final data = await FirebaseFirestore.instance
       .collection('sppd')
       .where("no_sppd", isEqualTo: noSppd)
       .get();
+
+  final dataPegawai = await FirebaseFirestore.instance
+      .collection('users')
+      .doc(data.docs[0]['userId'])
+      .get();
+
+  String convertToIdr(dynamic number, int decimalDigit) {
+    NumberFormat currencyFormatter = NumberFormat.currency(
+      locale: 'id',
+      symbol: 'Rp ',
+      decimalDigits: decimalDigit,
+    );
+    return currencyFormatter.format(number);
+  }
 
   pdf.addPage(pw.Page(
       pageFormat: PdfPageFormat.a4,
@@ -82,7 +91,7 @@ laporanKegiatan(
           pw.SizedBox(height: 8),
           pw.Center(
             child: pw.Text(
-              'Kegiatan Perjalanan Dinas',
+              'Anggaran Perjalanan Dinas',
               style: pw.TextStyle(
                   fontSize: 16,
                   fontWeight: pw.FontWeight.bold,
@@ -117,7 +126,36 @@ laporanKegiatan(
               pw.Padding(
                 padding: const pw.EdgeInsets.symmetric(vertical: 3),
                 child: pw.Text(
-                  data.docs[0]['nama'],
+                  dataPegawai['nama'],
+                  style: const pw.TextStyle(
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ]),
+            pw.TableRow(children: [
+              pw.Padding(
+                padding: const pw.EdgeInsets.symmetric(vertical: 3),
+                child: pw.Text(
+                  'NIP',
+                  style: const pw.TextStyle(
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+              pw.Padding(
+                padding: const pw.EdgeInsets.symmetric(vertical: 3),
+                child: pw.Text(
+                  ':',
+                  style: const pw.TextStyle(
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+              pw.Padding(
+                padding: const pw.EdgeInsets.symmetric(vertical: 3),
+                child: pw.Text(
+                  dataPegawai['nip'],
                   style: const pw.TextStyle(
                     fontSize: 12,
                   ),
@@ -146,94 +184,7 @@ laporanKegiatan(
               pw.Padding(
                 padding: const pw.EdgeInsets.symmetric(vertical: 3),
                 child: pw.Text(
-                  data.docs[0]['no_sppd'],
-                  style: const pw.TextStyle(
-                    fontSize: 12,
-                  ),
-                ),
-              ),
-            ]),
-            pw.TableRow(children: [
-              pw.Padding(
-                padding: const pw.EdgeInsets.symmetric(vertical: 3),
-                child: pw.Text(
-                  'Tempat Tujuan',
-                  style: const pw.TextStyle(
-                    fontSize: 12,
-                  ),
-                ),
-              ),
-              pw.Padding(
-                padding: const pw.EdgeInsets.symmetric(vertical: 3),
-                child: pw.Text(
-                  ':',
-                  style: const pw.TextStyle(
-                    fontSize: 12,
-                  ),
-                ),
-              ),
-              pw.Padding(
-                padding: const pw.EdgeInsets.symmetric(vertical: 3),
-                child: pw.Text(
-                  data.docs[0]['tempat_tujuan'],
-                  style: const pw.TextStyle(
-                    fontSize: 12,
-                  ),
-                ),
-              ),
-            ]),
-            pw.TableRow(children: [
-              pw.Padding(
-                padding: const pw.EdgeInsets.symmetric(vertical: 3),
-                child: pw.Text(
-                  'Tanggal Berangkat',
-                  style: const pw.TextStyle(
-                    fontSize: 12,
-                  ),
-                ),
-              ),
-              pw.Padding(
-                padding: const pw.EdgeInsets.symmetric(vertical: 3),
-                child: pw.Text(
-                  ':',
-                  style: const pw.TextStyle(
-                    fontSize: 12,
-                  ),
-                ),
-              ),
-              pw.Padding(
-                padding: const pw.EdgeInsets.symmetric(vertical: 3),
-                child: pw.Text(
-                  formatDate(data.docs[0]['tanggal_berangkat']),
-                  style: const pw.TextStyle(
-                    fontSize: 12,
-                  ),
-                ),
-              ),
-            ]),
-            pw.TableRow(children: [
-              pw.Padding(
-                padding: const pw.EdgeInsets.symmetric(vertical: 3),
-                child: pw.Text(
-                  'Tanggal Kembali',
-                  style: const pw.TextStyle(
-                    fontSize: 12,
-                  ),
-                ),
-              ),
-              pw.Padding(
-                padding: const pw.EdgeInsets.symmetric(vertical: 3),
-                child: pw.Text(
-                  ':',
-                  style: const pw.TextStyle(
-                    fontSize: 12,
-                  ),
-                ),
-              ),
-              pw.Padding(
-                padding: const pw.EdgeInsets.symmetric(vertical: 3),
-                child: pw.Text(
-                  formatDate(data.docs[0]['tanggal_kembali']),
+                  noSppd,
                   style: const pw.TextStyle(
                     fontSize: 12,
                   ),
@@ -250,7 +201,7 @@ laporanKegiatan(
             )
           ]),
           pw.SizedBox(height: 4),
-          pw.Text('Kegiatan : ',
+          pw.Text('Anggaran : ',
               style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
           pw.SizedBox(height: 4),
           pw.Table(
@@ -275,7 +226,7 @@ laporanKegiatan(
                   pw.Padding(
                     padding: const pw.EdgeInsets.all(8),
                     child: pw.Text(
-                      'Kegiatan',
+                      'Jenis Pengeluaran',
                       textAlign: pw.TextAlign.center,
                       style: pw.TextStyle(
                           fontSize: 12, fontWeight: pw.FontWeight.bold),
@@ -284,64 +235,134 @@ laporanKegiatan(
                   pw.Padding(
                     padding: const pw.EdgeInsets.all(8),
                     child: pw.Text(
-                      'Tanggal',
-                      textAlign: pw.TextAlign.center,
-                      style: pw.TextStyle(
-                          fontSize: 12, fontWeight: pw.FontWeight.bold),
-                    ),
-                  ),
-                  pw.Padding(
-                    padding: const pw.EdgeInsets.all(8),
-                    child: pw.Text(
-                      'Keterangan',
+                      'Estimasi Biaya',
                       textAlign: pw.TextAlign.center,
                       style: pw.TextStyle(
                           fontSize: 12, fontWeight: pw.FontWeight.bold),
                     ),
                   ),
                 ]),
-                for (var i = 0; i < 3; i++)
-                  pw.TableRow(children: [
-                    pw.Padding(
-                      padding: const pw.EdgeInsets.all(9),
-                      child: pw.Text(
-                        '1',
-                        textAlign: pw.TextAlign.center,
-                        style: const pw.TextStyle(
-                          fontSize: 12,
-                        ),
+                pw.TableRow(children: [
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(9),
+                    child: pw.Text(
+                      '1',
+                      textAlign: pw.TextAlign.center,
+                      style: const pw.TextStyle(
+                        fontSize: 12,
                       ),
                     ),
-                    pw.Padding(
-                      padding: const pw.EdgeInsets.all(6),
-                      child: pw.Text(
-                        kegiatan[i],
-                        style: const pw.TextStyle(
-                          fontSize: 12,
-                        ),
+                  ),
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(6),
+                    child: pw.Text(
+                      'Uang Harian',
+                      style: const pw.TextStyle(
+                        fontSize: 12,
                       ),
                     ),
-                    pw.Padding(
-                      padding: const pw.EdgeInsets.all(6),
-                      child: pw.Text(
-                        // getUser.docs[0]['golongan'],
-                        formatTanggal[i].toString(),
-                        style: const pw.TextStyle(
-                          fontSize: 12,
-                        ),
+                  ),
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(6),
+                    child: pw.Text(
+                      convertToIdr(uangHarian, 2),
+                      style: const pw.TextStyle(
+                        fontSize: 12,
                       ),
                     ),
-                    pw.Padding(
-                      padding: const pw.EdgeInsets.all(6),
-                      child: pw.Text(
-                        // getUser.docs[0]['jabatan'],
-                        keterangan[i],
-                        style: const pw.TextStyle(
-                          fontSize: 12,
-                        ),
+                  ),
+                ]),
+                pw.TableRow(children: [
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(9),
+                    child: pw.Text(
+                      '2',
+                      textAlign: pw.TextAlign.center,
+                      style: const pw.TextStyle(
+                        fontSize: 12,
                       ),
                     ),
-                  ]),
+                  ),
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(6),
+                    child: pw.Text(
+                      'Biaya Transportasi',
+                      style: const pw.TextStyle(
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(6),
+                    child: pw.Text(
+                      convertToIdr(biayaTransportasi, 2),
+                      style: const pw.TextStyle(
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ]),
+                pw.TableRow(children: [
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(9),
+                    child: pw.Text(
+                      '3',
+                      textAlign: pw.TextAlign.center,
+                      style: const pw.TextStyle(
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(6),
+                    child: pw.Text(
+                      'Biaya Penginapan',
+                      style: const pw.TextStyle(
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(6),
+                    child: pw.Text(
+                      convertToIdr(biayaPenginapan, 2),
+                      style: const pw.TextStyle(
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ]),
+                pw.TableRow(children: [
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(9),
+                    child: pw.Text(
+                      '',
+                      textAlign: pw.TextAlign.center,
+                      style: const pw.TextStyle(
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(6),
+                    child: pw.Text(
+                      'Total',
+                      textAlign: pw.TextAlign.center,
+                      style: const pw.TextStyle(
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(6),
+                    child: pw.Text(
+                      convertToIdr(total, 2),
+                      style: const pw.TextStyle(
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ]),
               ]),
           pw.SizedBox(height: 18),
           pw.Align(
@@ -377,7 +398,7 @@ laporanKegiatan(
           path: temp,
           callback: () async {
             String no = noSppd.substring(4, 7);
-            String namePdf = "Kegiatan-$no";
+            String namePdf = "Anggaran-$no";
             var dir = await getExternalStorageDirectory();
             dir = Directory('/storage/emulated/0/Download');
             final File file =
@@ -395,14 +416,4 @@ laporanKegiatan(
           },
         ),
       ));
-
-  // final String dir = (await getApplicationDocumentsDirectory()).path;
-  // final String path = '$dir/report.pdf';
-  // final File file = File(path);
-  // await file.writeAsBytes(await pdf.save());
-
-  // // ignore: use_build_context_synchronously
-  // await Printing.layoutPdf(
-  //   onLayout: (format) async => pdf.save(),
-  // );
 }

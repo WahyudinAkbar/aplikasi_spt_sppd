@@ -2,6 +2,7 @@ import 'package:aplikasi_kepegawaian/pages/anggaran/create_anggaran_page.dart';
 import 'package:aplikasi_kepegawaian/pages/anggaran/edit_anggaran_page.dart';
 import 'package:aplikasi_kepegawaian/pages/kuitansi/create_kuitansi_page.dart';
 import 'package:aplikasi_kepegawaian/pages/kuitansi/edit_kuitansi_page.dart';
+import 'package:aplikasi_kepegawaian/pages/kuitansi/report_kuitansi.dart';
 import 'package:aplikasi_kepegawaian/pages/login/register_page.dart';
 import 'package:aplikasi_kepegawaian/pages/nota_dinas/create_nota_dinas_page.dart';
 import 'package:aplikasi_kepegawaian/pages/nota_dinas/edit_nota_dinas_page.dart';
@@ -99,16 +100,10 @@ class _KuitansiPageState extends State<KuitansiPage> {
                               label: Text('Nama'),
                             ),
                             DataColumn(
-                              label: Text('Uang Harian'),
+                              label: Text('Nominal Pembayaran'),
                             ),
                             DataColumn(
-                              label: Text('Biaya Transportasi'),
-                            ),
-                            DataColumn(
-                              label: Text('Biaya Penginapan'),
-                            ),
-                            DataColumn(
-                              label: Text('Total'),
+                              label: Text('Perihal Pembayaran'),
                             ),
                             DataColumn(
                               label: Text('Action'),
@@ -195,16 +190,10 @@ class MyData extends DataTableSource {
         },
       )),
       DataCell(
-        Text('Rp. ${data[index].data()["uang_harian"]}'),
+        Text('Rp. ${data[index].data()["jumlah_dana"]}'),
       ),
       DataCell(
-        Text('Rp. ${data[index].data()["biaya_transportasi"]}'),
-      ),
-      DataCell(
-        Text('Rp. ${data[index].data()["biaya_penginapan"]}'),
-      ),
-      DataCell(
-        Text('Rp. ${data[index].data()["total"]}'),
+        Text(data[index].data()["perihal_pembayaran"]),
       ),
       DataCell(Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -222,12 +211,8 @@ class MyData extends DataTableSource {
                       builder: (context) => EditKuitansiPage(
                             idKuitansi: data[index].reference.id,
                             noSppd: data[index].data()["no_sppd"],
-                            uangHarian: data[index].data()["uang_harian"],
-                            uangTransportasi:
-                                data[index].data()["biaya_transportasi"],
-                            uangPenginapan:
-                                data[index].data()["biaya_penginapan"],
-                            total: data[index].data()["total"],
+                            jumlahDana: data[index].data()["jumlah_dana"],
+                            perihal: data[index].data()["perihal_pembayaran"],
                           )));
             },
           ),
@@ -253,19 +238,12 @@ class MyData extends DataTableSource {
               style: TextStyle(color: Colors.black),
             ),
             onPressed: () {
-              laporanNotaDinas(
-                data[index].data()['no_surat'],
-                data[index].data()['nama'],
-                data[index].data()['perihal'],
-                data[index].data()['dasar'],
-                data[index].data()['maksud_tujuan'],
-                data[index].data()['tempat_tujuan'],
-                data[index].data()['maksud_tujuan'],
-                formatDate(data[index].data()['tanggal_berangkat']).toString(),
-                formatDate(data[index].data()['tanggal_kembali']).toString(),
-                hitungHari(data[index].data()['tanggal_kembali'],
-                    data[index].data()['tanggal_berangkat']),
-                formatDate(data[index].data()['send_time']).toString(),
+              laporanKuitansi(
+                context,
+                data[index].data()['no_sppd'],
+                data[index].data()['perihal_pembayaran'],
+                data[index].data()['jumlah_dana'],
+                terbilang(data[index].data()['jumlah_dana']),
               );
             },
           ),
@@ -275,6 +253,60 @@ class MyData extends DataTableSource {
         ],
       )),
     ]);
+  }
+
+  String penyebut(nominal) {
+    var nilai = nominal.abs();
+    List huruf = [
+      "",
+      "satu",
+      "dua",
+      "tiga",
+      "empat",
+      "lima",
+      "enam",
+      "tujuh",
+      "delapan",
+      "sembilan",
+      "sepuluh",
+      "sebelas"
+    ];
+    String temp = "";
+    if (nilai < 12) {
+      temp = "${huruf[nilai.toInt()]}";
+    } else if (nilai < 20) {
+      temp = "${penyebut(nilai - 10)} belas";
+    } else if (nilai < 100) {
+      temp = "${penyebut(nilai / 10)} puluh ${penyebut(nilai % 10)}";
+    } else if (nilai < 200) {
+      temp = "seratus ${penyebut(nilai - 100)}";
+    } else if (nilai < 1000) {
+      temp = "${penyebut(nilai / 100)} ratus ${penyebut(nilai % 100)}";
+    } else if (nilai < 2000) {
+      temp = "seribu ${penyebut(nilai - 1000)}";
+    } else if (nilai < 1000000) {
+      temp = "${penyebut(nilai / 1000)} ribu ${penyebut(nilai % 1000)}";
+    } else if (nilai < 1000000000) {
+      temp = "${penyebut(nilai / 1000000)} juta ${penyebut(nilai % 1000000)}";
+    } else if (nilai < 1000000000000) {
+      temp =
+          "${penyebut(nilai / 1000000000)} milyar ${penyebut(nilai % 1000000000)}";
+    } else if (nilai < 1000000000000000) {
+      temp =
+          "${penyebut(nilai / 1000000000000)} trilyun ${penyebut(nilai % 1000000000000)}";
+    }
+    return temp;
+  }
+
+  String terbilang(nilai) {
+    String hasil = '';
+    if (nilai < 0) {
+      hasil = "minus ${penyebut(nilai).trim()}";
+    } else {
+      hasil = penyebut(nilai).trim();
+    }
+
+    return hasil.replaceAll(RegExp('\\s+'), ' ');
   }
 
   showAlertHapus(BuildContext context, id) {
